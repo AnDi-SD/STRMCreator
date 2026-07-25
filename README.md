@@ -1,3 +1,5 @@
+[English](README.md) | [Русский](README.ru_RU.md)
+
 # STRM Creator
 
 Cross-platform desktop library manager for creating and maintaining TorrServer
