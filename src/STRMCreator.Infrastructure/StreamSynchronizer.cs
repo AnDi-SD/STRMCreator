@@ -50,6 +50,19 @@ public sealed class StreamSynchronizer
         File.Delete(testPath);
     }
 
+    public void DeleteDirectoryIfEmpty(string root, string relativeDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(relativeDirectory))
+            return;
+        var fullRoot = Path.GetFullPath(root);
+        var directory = Resolve(root, relativeDirectory);
+        if (string.Equals(directory.TrimEnd(Path.DirectorySeparatorChar),
+                fullRoot.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+            return;
+        if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+            Directory.Delete(directory);
+    }
+
     private static async Task WriteAtomicAsync(string path, string content)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);

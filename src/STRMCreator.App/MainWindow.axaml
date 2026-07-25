@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="using:STRMCreator.App"
+        xmlns:i18n="using:STRMCreator.App.Localization"
         x:Class="STRMCreator.App.MainWindow"
         x:CompileBindings="False"
         Title="STRM Creator" Width="1180" Height="760"
@@ -37,9 +38,6 @@
       <Setter Property="Background" Value="#E2E5E9"/>
       <Setter Property="Foreground" Value="#181B20"/>
     </Style>
-    <Style Selector="ComboBox#TitleBox /template/ TextBox#PART_EditableTextBox">
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
     <Style Selector="TextBox, ComboBox">
       <Setter Property="MinHeight" Value="34"/>
     </Style>
@@ -56,14 +54,16 @@
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
           <TextBlock Text="STRM Creator" Foreground="White" FontSize="20" FontWeight="SemiBold"/>
-          <TextBlock Text="Библиотека TorrServer для Infuse" Foreground="#B9BEC6" VerticalAlignment="Center"/>
+          <TextBlock Text="{i18n:Loc AppSubtitle}" Foreground="#B9BEC6" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-          <Button Classes="topbar" Content="Добавить magnet" Click="OpenMagnet_Click"/>
-          <Button Classes="topbar" Content="Открыть torrent" Click="OpenTorrent_Click"/>
-          <Button x:Name="SettingsToggle" Classes="topbar" Content="Настройки"
+          <Button Classes="topbar" Content="{i18n:Loc AddSource}" Click="AddSource_Click"/>
+          <Button Classes="topbar" Content="{i18n:Loc TorrentsAndLinks}" Click="ShowAllSources_Click"/>
+          <Button x:Name="SettingsToggle" Classes="topbar" Content="{i18n:Loc Settings}"
                   BorderThickness="1"
                   Click="SettingsToggle_Click"/>
+          <Button x:Name="LanguageButton" Classes="topbar" MinWidth="82"
+                  BorderThickness="1" Click="Language_Click"/>
         </StackPanel>
       </Grid>
     </Border>
@@ -72,25 +72,25 @@
       <Border Classes="panel">
         <Grid RowDefinitions="Auto,*,Auto">
           <StackPanel Margin="16,14,16,10" Spacing="8">
-            <TextBlock Classes="h1" Text="Медиатека"/>
-            <TextBlock x:Name="LibraryCountText" Classes="label" Text="0 источников"/>
-            <TextBox x:Name="LibrarySearchBox" PlaceholderText="Поиск"
+            <TextBlock Classes="h1" Text="{i18n:Loc Library}"/>
+            <TextBlock x:Name="LibraryCountText" Classes="label"/>
+            <TextBox x:Name="LibrarySearchBox" PlaceholderText="{i18n:Loc Search}"
                      TextChanged="LibrarySearch_Changed"/>
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
               <Button x:Name="ShowAllButton" Padding="8,4"
                       HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                       VerticalContentAlignment="Center" Click="ShowAll_Click">
-                <TextBlock Text="Все" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Text="{i18n:Loc All}" TextAlignment="Center" HorizontalAlignment="Center"/>
               </Button>
               <Button x:Name="ShowMoviesButton" Grid.Column="1" Padding="8,4"
                       HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                       VerticalContentAlignment="Center" Click="ShowMovies_Click">
-                <TextBlock Text="Фильмы" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Text="{i18n:Loc Movies}" TextAlignment="Center" HorizontalAlignment="Center"/>
               </Button>
               <Button x:Name="ShowSeriesButton" Grid.Column="2" Padding="8,4"
                       HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                       VerticalContentAlignment="Center" Click="ShowSeries_Click">
-                <TextBlock Text="Сериалы" TextAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Text="{i18n:Loc SeriesPlural}" TextAlignment="Center" HorizontalAlignment="Center"/>
               </Button>
             </Grid>
           </StackPanel>
@@ -98,19 +98,28 @@
                    SelectionChanged="LibraryList_SelectionChanged">
             <ListBox.ItemTemplate>
               <DataTemplate>
-                <Grid Margin="8,8" ColumnDefinitions="*,Auto">
-                  <StackPanel>
-                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding Detail}" Classes="label"/>
-                  </StackPanel>
-                  <TextBlock Grid.Column="1" Text="{Binding Status}" Classes="label" VerticalAlignment="Center"/>
+                <Grid Margin="8,10">
+                  <Grid.ContextMenu>
+                    <ContextMenu>
+                      <MenuItem Header="{i18n:Loc DeleteFromLibrary}"
+                                Click="DeleteLibraryItem_Click"/>
+                    </ContextMenu>
+                  </Grid.ContextMenu>
+                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
+                             TextTrimming="CharacterEllipsis"/>
                 </Grid>
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
           <Border Grid.Row="2" BorderBrush="#E2E4E8" BorderThickness="0,1,0,0" Padding="12">
-            <Button Content="Синхронизировать всю медиатеку" HorizontalAlignment="Stretch"
-                    Click="SyncAll_Click"/>
+            <StackPanel Spacing="8">
+              <Button x:Name="DeleteSelectedButton" Content="{i18n:Loc DeleteSelected}"
+                      HorizontalAlignment="Stretch" IsEnabled="False"
+                      Background="#F4E1DF" Foreground="#7B2018"
+                      Click="DeleteSelected_Click"/>
+              <Button Content="{i18n:Loc SyncEntireLibrary}" HorizontalAlignment="Stretch"
+                      Click="SyncAll_Click"/>
+            </StackPanel>
           </Border>
         </Grid>
       </Border>
@@ -119,60 +128,88 @@
         <Grid RowDefinitions="Auto,Auto,*">
           <Grid Margin="20,16">
             <StackPanel>
-              <TextBlock x:Name="EditorTitleText" Classes="h1" Text="Добавление источника"/>
+              <TextBlock x:Name="EditorTitleText" Classes="h1"/>
               <TextBlock x:Name="TorrentSummaryText" Classes="label"
-                         Text="Выберите torrent-файл, чтобы увидеть его содержимое"/>
+                         Text="{i18n:Loc EditorHint}"/>
             </StackPanel>
           </Grid>
 
-          <Border Grid.Row="1" Background="#F7F8FA" BorderBrush="#E2E4E8"
-                  BorderThickness="0,1" Padding="20,14">
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,100,100"
-                  ColumnSpacing="14" RowSpacing="12">
-              <StackPanel Grid.ColumnSpan="4">
-                <TextBlock Classes="label" Text="Название"/>
-                <ComboBox x:Name="TitleBox" IsEditable="True" IsTextSearchEnabled="False"
-                          VerticalContentAlignment="Center"
-                          SelectionChanged="TitleBox_SelectionChanged"/>
+          <Border x:Name="EditorFieldsPanel" Grid.Row="1" Background="#F7F8FA"
+                  BorderBrush="#E2E4E8" BorderThickness="0,1" Padding="20,14"
+                  IsVisible="False">
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+              <StackPanel>
+                <TextBlock Classes="label" Text="{i18n:Loc TitleLabel}"/>
+                <TextBox x:Name="TitleBox" VerticalContentAlignment="Center"
+                         TextChanged="TitleBox_TextChanged"/>
               </StackPanel>
-              <StackPanel Grid.Row="1">
-                <TextBlock Classes="label" Text="Категория"/>
-                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
-                  <RadioButton x:Name="SeriesKindRadio" Content="Сериал" IsChecked="True"
-                               Click="MediaKind_Changed"/>
-                  <RadioButton x:Name="MovieKindRadio" Content="Фильм" Click="MediaKind_Changed"/>
+              <WrapPanel Grid.Row="1" Orientation="Horizontal">
+                <StackPanel Width="220" Margin="0,0,10,10">
+                  <TextBlock Classes="label" Text="{i18n:Loc Category}"/>
+                  <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+                    <RadioButton x:Name="SeriesKindRadio" Content="{i18n:Loc Series}" IsChecked="True"
+                                 Click="MediaKind_Changed"/>
+                    <RadioButton x:Name="MovieKindRadio" Content="{i18n:Loc Movie}" Click="MediaKind_Changed"/>
+                  </StackPanel>
                 </StackPanel>
-              </StackPanel>
-              <StackPanel x:Name="SeasonControls" Grid.Row="1" Grid.Column="2">
-                <TextBlock Classes="label" Text="Сезон"/>
-                <local:NumberStepper x:Name="SeasonBox" Minimum="0" Maximum="999" Value="1"
-                                     ValueChanged="Numbering_Changed"/>
-              </StackPanel>
-              <StackPanel x:Name="EpisodeControls" Grid.Row="1" Grid.Column="3">
-                <TextBlock Classes="label" Text="Первая серия"/>
-                <local:NumberStepper x:Name="FirstEpisodeBox" Minimum="0" Maximum="9999" Value="1"
-                                     ValueChanged="Numbering_Changed"/>
-              </StackPanel>
+                <StackPanel Width="230" Margin="0,0,10,10">
+                  <TextBlock Classes="label" Text="{i18n:Loc Playback}"/>
+                  <Button x:Name="PlaySeasonButton" Content="{i18n:Loc PlaySeason}"
+                          Height="40" HorizontalAlignment="Stretch"
+                          Click="PlaySeason_Click"/>
+                </StackPanel>
+                <StackPanel x:Name="SeasonControls" Width="130" Margin="0,0,10,10">
+                  <TextBlock Classes="label" Text="{i18n:Loc Season}"/>
+                  <ComboBox x:Name="SeasonSelector" MinHeight="40"
+                            SelectionChanged="SeasonSelector_Changed"/>
+                  <local:NumberStepper x:Name="SeasonBox" Minimum="0" Maximum="999" Value="1"
+                                       ValueChanged="Numbering_Changed" IsVisible="False"/>
+                </StackPanel>
+                <StackPanel x:Name="EpisodeControls" Width="320" Margin="0,0,0,10">
+                  <TextBlock Classes="label" Text="{i18n:Loc Management}"/>
+                  <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
+                    <Button Content="{i18n:Loc Sources}" Height="40" HorizontalAlignment="Stretch"
+                            Click="ShowSources_Click"/>
+                    <Button Grid.Column="1" Content="{i18n:Loc MediaFiles}" Height="40"
+                            HorizontalAlignment="Stretch" Click="ShowMediaFiles_Click"/>
+                  </Grid>
+                  <local:NumberStepper x:Name="FirstEpisodeBox" Minimum="0" Maximum="9999" Value="1"
+                                       ValueChanged="Numbering_Changed" IsVisible="False"/>
+                </StackPanel>
+              </WrapPanel>
             </Grid>
           </Border>
 
-          <Grid Grid.Row="2" RowDefinitions="Auto,*,Auto">
-            <Grid Margin="20,14,20,8" ColumnDefinitions="70,*,65,95,95,210">
-              <TextBlock Text="Включить" Classes="label"/>
-              <TextBlock Grid.Column="1" Text="Исходный файл" Classes="label"/>
-              <TextBlock Grid.Column="2" Text="Индекс" Classes="label"/>
-              <TextBlock x:Name="SeasonColumnHeader" Grid.Column="3" Text="Сезон" Classes="label"/>
-              <TextBlock x:Name="EpisodeColumnHeader" Grid.Column="4" Text="Серия" Classes="label"/>
-              <TextBlock Grid.Column="5" Text="Итоговый STRM" Classes="label"/>
+          <Grid x:Name="EditorContentPanel" Grid.Row="2" RowDefinitions="Auto,*,Auto"
+                IsVisible="False">
+            <Grid Margin="20,14,20,8" ColumnDefinitions="46,*,65,95,95,210,86">
+              <TextBlock Grid.Column="1" Text="{i18n:Loc SourceFile}" Classes="label"/>
+              <TextBlock Grid.Column="2" Text="{i18n:Loc Index}" Classes="label" TextAlignment="Center"/>
+              <TextBlock x:Name="SeasonColumnHeader" Grid.Column="3" Text="{i18n:Loc Season}"
+                         Classes="label" TextAlignment="Center"/>
+              <TextBlock x:Name="EpisodeColumnHeader" Grid.Column="4" Text="{i18n:Loc Episode}"
+                         Classes="label" TextAlignment="Center"/>
+              <TextBlock Grid.Column="5" Text="{i18n:Loc ResultStrm}" Classes="label"/>
+              <TextBlock Grid.Column="6" Text="{i18n:Loc Action}" Classes="label"
+                         TextAlignment="Center"/>
             </Grid>
             <ListBox x:Name="EpisodeList" Grid.Row="1" Margin="12,0">
               <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Grid Margin="8,5" ColumnDefinitions="70,*,65,95,95,210">
-                    <CheckBox IsChecked="{Binding Selected}"/>
+                  <Grid Margin="8,5" ColumnDefinitions="46,*,65,95,95,210,86">
+                    <Grid.ContextMenu>
+                      <ContextMenu>
+                        <MenuItem Header="{i18n:Loc DeleteEpisode}" IsVisible="{Binding IsSeries}"
+                                  Click="DeleteEpisodeMenu_Click"/>
+                      </ContextMenu>
+                    </Grid.ContextMenu>
+                    <Button Content="▶" Width="36" Height="34" Padding="0"
+                            ToolTip.Tip="{i18n:Loc Play}"
+                            Click="PlayEpisode_Click"/>
                     <TextBlock Grid.Column="1" Text="{Binding SourceName}" TextTrimming="CharacterEllipsis"
                                VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Text="{Binding Index}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Index}" VerticalAlignment="Center"
+                               TextAlignment="Center"/>
                     <local:NumberStepper Grid.Column="3" Value="{Binding Season, Mode=TwoWay}"
                                          Minimum="0" Maximum="999" MinHeight="30"
                                          IsVisible="{Binding IsSeries}"/>
@@ -181,14 +218,17 @@
                                          IsVisible="{Binding IsSeries}"/>
                     <TextBlock Grid.Column="5" Text="{Binding OutputName}" TextTrimming="CharacterEllipsis"
                                VerticalAlignment="Center"/>
+                    <Button Grid.Column="6" Content="{i18n:Loc Delete}" Padding="8,4"
+                            Background="#F4E1DF" Foreground="#7B2018"
+                            IsVisible="{Binding IsSeries}" Click="DeleteEpisode_Click"/>
                   </Grid>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>
             <Border Grid.Row="2" BorderBrush="#E2E4E8" BorderThickness="0,1,0,0" Padding="20,12">
               <Grid ColumnDefinitions="*,Auto">
-                <TextBlock x:Name="StatusText" Text="Готово" Classes="label" VerticalAlignment="Center"/>
-                <Button x:Name="ImportButton" Grid.Column="1" Content="Добавить и синхронизировать"
+                <TextBlock x:Name="StatusText" Text="{i18n:Loc Ready}" Classes="label" VerticalAlignment="Center"/>
+                <Button x:Name="ImportButton" Grid.Column="1" Content="{i18n:Loc AddAndSync}"
                         IsVisible="False"
                         Click="ImportAndSync_Click"/>
               </Grid>

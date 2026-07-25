@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace STRMCreator.Infrastructure;
 
-public sealed record BootstrapConfig(string DatabasePath);
+public sealed record BootstrapConfig(string DatabasePath, string Language = "en");
 
 public sealed class BootstrapConfigStore
 {
@@ -35,11 +35,22 @@ public sealed class BootstrapConfigStore
 
     public async Task SaveAsync(string databasePath)
     {
+        var current = await LoadAsync();
+        await SaveAsync(new BootstrapConfig(Path.GetFullPath(databasePath), current.Language));
+    }
+
+    public async Task SaveLanguageAsync(string language)
+    {
+        var current = await LoadAsync();
+        await SaveAsync(current with { Language = language });
+    }
+
+    private async Task SaveAsync(BootstrapConfig config)
+    {
         Directory.CreateDirectory(Path.GetDirectoryName(_configPath)!);
         var temporary = _configPath + ".tmp";
         await File.WriteAllTextAsync(temporary,
-            JsonSerializer.Serialize(new BootstrapConfig(Path.GetFullPath(databasePath)),
-                new JsonSerializerOptions { WriteIndented = true }));
+            JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }));
         File.Move(temporary, _configPath, true);
     }
 }

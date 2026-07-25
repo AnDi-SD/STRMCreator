@@ -21,6 +21,9 @@ public static partial class Recognition
         return string.IsNullOrWhiteSpace(value) ? torrentName.Trim() : value;
     }
 
+    public static MediaKind DetectMediaKind(TorrentMetadata torrent) =>
+        torrent.Files.Count(file => file.IsVideo()) <= 1 ? MediaKind.Movie : MediaKind.Series;
+
     public static IReadOnlyList<EpisodeCandidate> DetectEpisodes(
         TorrentMetadata torrent, int defaultSeason = 1, int firstEpisode = 1)
     {

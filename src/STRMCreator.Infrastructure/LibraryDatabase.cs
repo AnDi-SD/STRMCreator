@@ -68,8 +68,87 @@ public sealed class LibraryDatabase(string databasePath)
               content TEXT NOT NULL,
               UNIQUE(library_item_id, relative_path)
             );
+            CREATE TABLE IF NOT EXISTS torrent_payloads (
+              info_hash TEXT PRIMARY KEY COLLATE NOCASE,
+              metainfo BLOB NOT NULL,
+              magnet_uri TEXT,
+              stored_at TEXT NOT NULL
+            );
             """;
         await command.ExecuteNonQueryAsync();
+        await ImportExistingTorrentFilesAsync(connection);
+    }
+
+    private static async Task ImportExistingTorrentFilesAsync(SqliteConnection connection)
+    {
+        var select = connection.CreateCommand();
+        select.CommandText =
+            """
+            SELECT DISTINCT li.info_hash, li.source
+            FROM library_items li
+            LEFT JOIN torrent_payloads tp ON tp.info_hash=li.info_hash
+            WHERE tp.info_hash IS NULL
+            """;
+        var sources = new List<(string Hash, string Path)>();
+        await using (var reader = await select.ExecuteReaderAsync())
+            while (await reader.ReadAsync())
+                sources.Add((reader.GetString(0), reader.GetString(1)));
+
+        foreach (var source in sources.Where(source => File.Exists(source.Path)))
+        {
+            var insert = connection.CreateCommand();
+            insert.CommandText =
+                """
+                INSERT OR IGNORE INTO torrent_payloads(info_hash,metainfo,magnet_uri,stored_at)
+                VALUES($hash,$data,NULL,$stored)
+                """;
+            insert.Parameters.AddWithValue("$hash", source.Hash);
+            insert.Parameters.Add("$data", SqliteType.Blob).Value = await File.ReadAllBytesAsync(source.Path);
+            insert.Parameters.AddWithValue("$stored", DateTimeOffset.UtcNow.ToString("O"));
+            await insert.ExecuteNonQueryAsync();
+        }
+    }
+
+    public async Task StoreTorrentAsync(string infoHash, ReadOnlyMemory<byte> metainfo,
+        string? magnetUri = null)
+    {
+        await using var connection = await OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            INSERT INTO torrent_payloads(info_hash,metainfo,magnet_uri,stored_at)
+            VALUES($hash,$data,$magnet,$stored)
+            ON CONFLICT(info_hash) DO UPDATE SET
+              metainfo=excluded.metainfo,
+              magnet_uri=COALESCE(excluded.magnet_uri,torrent_payloads.magnet_uri),
+              stored_at=excluded.stored_at
+            """;
+        command.Parameters.AddWithValue("$hash", infoHash);
+        command.Parameters.Add("$data", SqliteType.Blob).Value = metainfo.ToArray();
+        command.Parameters.AddWithValue("$magnet", (object?)magnetUri ?? DBNull.Value);
+        command.Parameters.AddWithValue("$stored", DateTimeOffset.UtcNow.ToString("O"));
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<byte[]> GetTorrentDataAsync(string infoHash)
+    {
+        await using var connection = await OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT metainfo FROM torrent_payloads WHERE info_hash=$hash";
+        command.Parameters.AddWithValue("$hash", infoHash);
+        return await command.ExecuteScalarAsync() as byte[]
+               ?? throw new InvalidOperationException(
+                   "Torrent metadata is missing from the database. Add the source again.");
+    }
+
+    public async Task<string?> GetTorrentMagnetAsync(string infoHash)
+    {
+        await using var connection = await OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT magnet_uri FROM torrent_payloads WHERE info_hash=$hash";
+        command.Parameters.AddWithValue("$hash", infoHash);
+        var value = await command.ExecuteScalarAsync();
+        return value is null or DBNull ? null : (string)value;
     }
 
     public async Task BackupAsync(string destinationPath)
@@ -316,10 +395,23 @@ public sealed class LibraryDatabase(string databasePath)
         return result;
     }
 
+    public async Task DeleteLibraryItemAsync(long libraryItemId)
+    {
+        await using var connection = await OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = "DELETE FROM library_items WHERE id=$id";
+        command.Parameters.AddWithValue("$id", libraryItemId);
+        if (await command.ExecuteNonQueryAsync() != 1)
+            throw new InvalidOperationException("Library item no longer exists.");
+    }
+
     private async Task<SqliteConnection> OpenAsync()
     {
         var connection = new SqliteConnection(ConnectionString);
         await connection.OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA foreign_keys = ON";
+        await command.ExecuteNonQueryAsync();
         return connection;
     }
 }

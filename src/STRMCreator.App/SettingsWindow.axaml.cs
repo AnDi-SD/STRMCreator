@@ -28,10 +28,10 @@ public partial class SettingsWindow : Window
     }
 
     private async void BrowseMovies_Click(object? sender, RoutedEventArgs e) =>
-        MoviesPathBox.Text = await PickFolderAsync("Каталог фильмов") ?? MoviesPathBox.Text;
+        MoviesPathBox.Text = await PickFolderAsync("Movies folder") ?? MoviesPathBox.Text;
 
     private async void BrowseSeries_Click(object? sender, RoutedEventArgs e) =>
-        SeriesPathBox.Text = await PickFolderAsync("Каталог сериалов") ?? SeriesPathBox.Text;
+        SeriesPathBox.Text = await PickFolderAsync("TV shows folder") ?? SeriesPathBox.Text;
 
     private async Task<string?> PickFolderAsync(string title)
     {
@@ -44,7 +44,7 @@ public partial class SettingsWindow : Window
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Выберите существующую базу",
+            Title = "Select an existing database",
             AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType("SQLite database") { Patterns = ["*.db"] }]
         });
@@ -60,23 +60,23 @@ public partial class SettingsWindow : Window
             ServerUrlBox.Text = settings.ServerUrl;
             MoviesPathBox.Text = settings.MoviesPath;
             SeriesPathBox.Text = settings.SeriesPath;
-            SetStatus("База открыта. Её настройки загружены.");
+            SetStatus("Database opened and its settings loaded.");
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }
 
     private async void CreateDatabase_Click(object? sender, RoutedEventArgs e)
     {
-        var path = await PickDatabasePathAsync("Создать новую базу");
+        var path = await PickDatabasePathAsync("Create a new database");
         if (path is null) return;
         _databasePath = Path.GetFullPath(path);
         DatabasePathBox.Text = _databasePath;
-        SetStatus("Новая база будет создана при сохранении настроек.");
+        SetStatus("The new database will be created when settings are saved.");
     }
 
     private async void MoveDatabase_Click(object? sender, RoutedEventArgs e)
     {
-        var path = await PickDatabasePathAsync("Перенести текущую базу");
+        var path = await PickDatabasePathAsync("Move the current database");
         if (path is null) return;
         try
         {
@@ -84,19 +84,19 @@ public partial class SettingsWindow : Window
             await database.BackupAsync(path);
             _databasePath = Path.GetFullPath(path);
             DatabasePathBox.Text = _databasePath;
-            SetStatus("База перенесена. Новый файл выбран как активный.");
+            SetStatus("Database moved. The new file is now active.");
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }
 
     private async void BackupDatabase_Click(object? sender, RoutedEventArgs e)
     {
-        var path = await PickDatabasePathAsync("Резервная копия базы");
+        var path = await PickDatabasePathAsync("Back up the database");
         if (path is null) return;
         try
         {
             await new LibraryDatabase(_databasePath).BackupAsync(path);
-            SetStatus($"Резервная копия создана: {path}");
+            SetStatus($"Backup created: {path}");
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }

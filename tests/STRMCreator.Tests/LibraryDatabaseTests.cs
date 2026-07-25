@@ -59,6 +59,57 @@ public sealed class LibraryDatabaseTests
     }
 
     [Fact]
+    public async Task DeleteLibraryItem_RemovesItemAndItsManagedStreams()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"strmcreator-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var database = new LibraryDatabase(Path.Combine(directory, "library.db"));
+            await database.InitializeAsync();
+            var id = await database.UpsertLibraryItemAsync(MediaKind.Movie, null, "Movie",
+                "source.torrent", "HASH", null, "Movie");
+            await database.ReplaceStreamsAsync(id,
+            [
+                new ManagedStream(0, id, 1, "Movie.mkv", "Movie/Movie.strm", "content")
+            ]);
+
+            await database.DeleteLibraryItemAsync(id);
+
+            Assert.Empty(await database.GetLibraryAsync());
+            Assert.Empty(await database.GetStreamsAsync(id));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task TorrentPayload_IsStoredInsideDatabaseWithMagnetUri()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"strmcreator-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var database = new LibraryDatabase(Path.Combine(directory, "library.db"));
+            await database.InitializeAsync();
+            byte[] expected = [1, 2, 3, 4, 5];
+            const string magnet = "magnet:?xt=urn:btih:ABC";
+
+            await database.StoreTorrentAsync("ABC", expected, magnet);
+            File.Delete(Path.Combine(directory, "unused.torrent"));
+
+            Assert.Equal(expected, await database.GetTorrentDataAsync("ABC"));
+            Assert.Equal(magnet, await database.GetTorrentMagnetAsync("ABC"));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task MagnetService_RejectsInvalidLinkBeforeNetworkAccess()
     {
         var service = new MagnetMetadataService();

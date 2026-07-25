@@ -14,5 +14,17 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
+        <Style Selector="Button.topbar">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#181B20"/>
+        </Style>
+        <Style Selector="Button.topbar:pointerover">
+            <Setter Property="Background" Value="#E2E5E9"/>
+            <Setter Property="Foreground" Value="#181B20"/>
+        </Style>
+        <Style Selector="Button.topbar:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E2E5E9"/>
+            <Setter Property="Foreground" Value="#181B20"/>
+        </Style>
     </Application.Styles>
 </Application>
