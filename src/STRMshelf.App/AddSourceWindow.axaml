@@ -1,0 +1,105 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i18n="using:STRMshelf.App.Localization"
+        xmlns:local="using:STRMshelf.App"
+        x:Class="STRMshelf.App.AddSourceWindow"
+        x:CompileBindings="False"
+        Title="{i18n:Loc AddSourceTitle}" Width="980" Height="720"
+        MinWidth="820" MinHeight="620"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F5F7">
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Border Background="#20242A" Padding="22,16">
+      <Grid>
+        <StackPanel>
+          <TextBlock Text="{i18n:Loc AddSourceTitle}" Foreground="White"
+                     FontSize="22" FontWeight="SemiBold"/>
+          <TextBlock x:Name="SourceSummaryText"
+                     Text="{i18n:Loc OpenTorrentOrMagnet}"
+                     Foreground="#B9BEC6"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid x:Name="EmptySourcePanel" Grid.Row="1" Grid.RowSpan="3">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14">
+        <TextBlock Text="{i18n:Loc SelectSource}" FontSize="20" FontWeight="SemiBold"
+                   HorizontalAlignment="Center"/>
+        <TextBlock Text="{i18n:Loc SelectSourceHint}"
+                   Foreground="#5A5F67" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+          <Button Content="{i18n:Loc AddMagnet}" Width="240" MinHeight="52"
+                  Click="OpenMagnet_Click"/>
+          <Button Content="{i18n:Loc OpenTorrent}" Width="240" MinHeight="52"
+                  Click="OpenTorrent_Click"/>
+        </StackPanel>
+        <TextBlock x:Name="EmptyStatusText" Foreground="#5A5F67"
+                   TextWrapping="Wrap" TextAlignment="Center" MaxWidth="620"/>
+      </StackPanel>
+    </Grid>
+
+    <Border x:Name="MetadataPanel" Grid.Row="1" Background="White" BorderBrush="#D9DCE1"
+            BorderThickness="0,0,0,1" Padding="22,14" IsVisible="False">
+      <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*"
+            ColumnSpacing="14" RowSpacing="10">
+        <StackPanel>
+          <TextBlock Text="{i18n:Loc TitleLabel}" Foreground="#50545B" FontSize="12"/>
+          <ComboBox x:Name="TitleBox" IsEditable="True" IsTextSearchEnabled="True"
+                    VerticalContentAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+          <TextBlock Text="{i18n:Loc Category}" Foreground="#50545B" FontSize="12"/>
+          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+            <RadioButton x:Name="SeriesKindRadio" Content="{i18n:Loc Series}" Click="MediaKind_Changed"/>
+            <RadioButton x:Name="MovieKindRadio" Content="{i18n:Loc Movie}" Click="MediaKind_Changed"/>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Border x:Name="FileHeaderPanel" Grid.Row="2" Background="#F7F8FA" Padding="22,9"
+            BorderBrush="#E2E4E8" BorderThickness="0,0,0,1" IsVisible="False">
+      <Grid ColumnDefinitions="72,*,80,110,110,230">
+        <TextBlock Text="{i18n:Loc Include}" Foreground="#50545B" FontSize="12"/>
+        <TextBlock Grid.Column="1" Text="{i18n:Loc SourceFile}" Foreground="#50545B" FontSize="12"/>
+        <TextBlock Grid.Column="2" Text="{i18n:Loc Index}" Foreground="#50545B" FontSize="12"
+                   TextAlignment="Center"/>
+        <TextBlock x:Name="SeasonHeader" Grid.Column="3" Text="{i18n:Loc Season}"
+                   Foreground="#50545B" FontSize="12" TextAlignment="Center"/>
+        <TextBlock x:Name="EpisodeHeader" Grid.Column="4" Text="{i18n:Loc Episode}"
+                   Foreground="#50545B" FontSize="12" TextAlignment="Center"/>
+        <TextBlock Grid.Column="5" Text="{i18n:Loc ResultStrm}" Foreground="#50545B" FontSize="12"/>
+      </Grid>
+    </Border>
+
+    <ListBox x:Name="FileList" Grid.Row="3" Margin="12,0" IsVisible="False">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid Margin="10,6" ColumnDefinitions="72,*,80,110,110,230">
+            <CheckBox IsChecked="{Binding Selected}" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="{Binding SourceName}" TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="{Binding Index}" TextAlignment="Center"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+            <local:NumberStepper Grid.Column="3" Value="{Binding Season, Mode=TwoWay}"
+                                 IsVisible="{Binding IsSeries}" Minimum="0" Maximum="999"/>
+            <local:NumberStepper Grid.Column="4" Value="{Binding Episode, Mode=TwoWay}"
+                                 IsVisible="{Binding IsSeries}" Minimum="0" Maximum="9999"/>
+            <TextBlock Grid.Column="5" Text="{Binding OutputName}" TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center"/>
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <Border x:Name="ActionPanel" Grid.Row="4" Background="White" BorderBrush="#D9DCE1"
+            BorderThickness="0,1,0,0" Padding="22,14" IsVisible="False">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <TextBlock x:Name="StatusText" Foreground="#5A5F67" VerticalAlignment="Center"/>
+        <Button Grid.Column="1" Content="{i18n:Loc Cancel}" Click="Cancel_Click"/>
+        <Button x:Name="AddButton" Grid.Column="2" Content="{i18n:Loc AddToLibrary}"
+                IsEnabled="False" Click="Add_Click"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

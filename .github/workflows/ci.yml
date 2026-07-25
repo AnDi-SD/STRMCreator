@@ -22,10 +22,10 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore STRMCreator.sln
+        run: dotnet restore STRMshelf.sln
 
       - name: Build
-        run: dotnet build STRMCreator.sln -c Release --no-restore
+        run: dotnet build STRMshelf.sln -c Release --no-restore
 
       - name: Test
-        run: dotnet test STRMCreator.sln -c Release --no-build
+        run: dotnet test STRMshelf.sln -c Release --no-build

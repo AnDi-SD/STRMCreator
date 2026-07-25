@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i18n="using:STRMshelf.App.Localization"
+        x:Class="STRMshelf.App.DeleteEpisodeDialog"
+        Title="{i18n:Loc DeleteEpisodeTitle}" Width="520" Height="245"
+        MinWidth="480" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F5F7">
+  <Grid RowDefinitions="*,Auto" Margin="22">
+    <StackPanel Spacing="10">
+      <TextBlock Text="{i18n:Loc DeleteEpisodeQuestion}"
+                 FontSize="19" FontWeight="SemiBold"/>
+      <TextBlock x:Name="EpisodeText" FontWeight="SemiBold"/>
+      <Border Background="#FBE7E5" BorderBrush="#B94336" BorderThickness="1"
+              CornerRadius="4" Padding="12">
+        <TextBlock Text="{i18n:Loc DeleteEpisodeHint}"
+                   TextWrapping="Wrap" Foreground="#6E1D16"/>
+      </Border>
+    </StackPanel>
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="{i18n:Loc Cancel}" Click="Cancel_Click"/>
+      <Button Content="{i18n:Loc Delete}" Background="#A52A20" Foreground="White"
+              Click="Delete_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>

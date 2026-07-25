@@ -1,11 +1,11 @@
 [English](README.md) | [Русский](README.ru_RU.md)
 
-# STRM Creator
+# STRMshelf
 
-Кроссплатформенное настольное приложение для создания и управления файлами
-`.strm` для TorrServer. Создаваемая медиатека рассчитана на Infuse, но файлы
-содержат обычные ссылки TorrServer и могут открываться другими совместимыми
-проигрывателями.
+Кроссплатформенное настольное приложение для создания и управления медиатекой
+`.strm` из внешних источников. Текущая версия работает с TorrServer и рассчитана
+на Infuse, но создаёт обычные потоковые ссылки, которые могут открываться
+другими совместимыми проигрывателями.
 
 ## Возможности
 
@@ -28,7 +28,7 @@
 - Открытие, создание, перенос и резервное копирование активной базы SQLite.
 - Интерфейс на английском и русском языках.
 
-STRM Creator не скачивает видео. Получение метаданных по magnet-ссылке работает
+STRMshelf не скачивает видео. Получение метаданных по magnet-ссылке работает
 через DHT и трекеры, требует наличия активных раздающих и может занять несколько
 минут.
 
@@ -43,7 +43,7 @@ STRM Creator не скачивает видео. Получение метада
 
 ```shell
 dotnet restore
-dotnet run --project src/STRMCreator.App
+dotnet run --project src/STRMshelf.App
 ```
 
 При первом запуске откройте **Настройки** и укажите адрес TorrServer, а также
@@ -54,14 +54,14 @@ dotnet run --project src/STRMCreator.App
 Сборка и тестирование всего решения:
 
 ```shell
-dotnet build STRMCreator.sln -c Release
-dotnet test STRMCreator.sln -c Release --no-build
+dotnet build STRMshelf.sln -c Release
+dotnet test STRMshelf.sln -c Release --no-build
 ```
 
 Создание автономного однофайлового приложения для Windows x64:
 
 ```shell
-dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
+dotnet publish src/STRMshelf.App/STRMshelf.App.csproj \
   -c Release -r win-x64 --self-contained true \
   -p:PublishSingleFile=true \
   -p:IncludeNativeLibrariesForSelfExtract=true \
@@ -72,7 +72,7 @@ dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
 идентификатор среды выполнения .NET.
 
 Готовые пакеты для Windows, macOS и Debian доступны на странице
-[Releases](https://github.com/AnDi-SD/STRMCreator/releases).
+[Releases](https://github.com/AnDi-SD/STRMshelf/releases).
 
 ## Хранение данных
 
@@ -80,7 +80,7 @@ dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
 пользователя:
 
 ```text
-STRMCreator/library.db
+STRMshelf/library.db
 ```
 
 Расположение базы можно изменить в настройках. Небольшой файл `config.json`
@@ -94,10 +94,10 @@ STRMCreator/library.db
 ## Структура проекта
 
 ```text
-src/STRMCreator.App             Интерфейс на Avalonia
-src/STRMCreator.Core            Распознавание torrent и доменная логика STRM
-src/STRMCreator.Infrastructure  SQLite, magnet-метаданные и синхронизация файлов
-tests/STRMCreator.Tests         Модульные и интеграционные тесты
+src/STRMshelf.App             Интерфейс на Avalonia
+src/STRMshelf.Core            Распознавание torrent и доменная логика STRM
+src/STRMshelf.Infrastructure  SQLite, magnet-метаданные и синхронизация файлов
+tests/STRMshelf.Tests         Модульные и интеграционные тесты
 ```
 
 ## Локализация
@@ -105,8 +105,8 @@ tests/STRMCreator.Tests         Модульные и интеграционны
 Строки интерфейса хранятся в файлах:
 
 ```text
-src/STRMCreator.App/Localization/Strings.resx
-src/STRMCreator.App/Localization/Strings.ru.resx
+src/STRMshelf.App/Localization/Strings.resx
+src/STRMshelf.App/Localization/Strings.ru.resx
 ```
 
 Чтобы добавить язык, скопируйте нейтральный файл ресурсов в
@@ -120,12 +120,12 @@ src/STRMCreator.App/Localization/Strings.ru.resx
 файлов. Перед созданием pull request выполните:
 
 ```shell
-dotnet test STRMCreator.sln -c Release
-dotnet format STRMCreator.sln --verify-no-changes
+dotnet test STRMshelf.sln -c Release
+dotnet format STRMshelf.sln --verify-no-changes
 ```
 
 ## Лицензия
 
-STRM Creator распространяется по [лицензии MIT](LICENSE). Проект можно
+STRMshelf распространяется по [лицензии MIT](LICENSE). Проект можно
 использовать, изменять и распространять при условии сохранения уведомления об
 авторских правах и текста лицензии.

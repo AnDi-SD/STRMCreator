@@ -22,18 +22,18 @@ jobs:
       - name: Publish Windows x64
         shell: pwsh
         run: |
-          dotnet publish src/STRMCreator.App/STRMCreator.App.csproj `
+          dotnet publish src/STRMshelf.App/STRMshelf.App.csproj `
             -c Release -r win-x64 --self-contained true `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -o publish/windows-x64
-          Move-Item publish/windows-x64/STRMCreator.App.exe `
-            publish/STRMCreator-windows-x64.exe
+          Move-Item publish/windows-x64/STRMshelf.App.exe `
+            publish/STRMshelf-windows-x64.exe
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-x64
-          path: publish/STRMCreator-windows-x64.exe
+          path: publish/STRMshelf-windows-x64.exe
           if-no-files-found: error
 
   macos:
@@ -42,10 +42,10 @@ jobs:
         include:
           - runner: macos-15-intel
             runtime: osx-x64
-            artifact: STRMCreator-macos-x64.zip
+            artifact: STRMshelf-macos-x64.zip
           - runner: macos-15
             runtime: osx-arm64
-            artifact: STRMCreator-macos-arm64.zip
+            artifact: STRMshelf-macos-arm64.zip
     runs-on: ${{ matrix.runner }}
 
     steps:
@@ -57,18 +57,18 @@ jobs:
 
       - name: Publish macOS
         run: |
-          dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
+          dotnet publish src/STRMshelf.App/STRMshelf.App.csproj \
             -c Release -r "${{ matrix.runtime }}" --self-contained true \
             -o publish/app
 
       - name: Create application bundle
         run: |
-          APP="publish/STRM Creator.app"
+          APP="publish/STRMshelf.app"
           mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
           cp -R publish/app/. "$APP/Contents/MacOS/"
-          cp src/STRMCreator.App/Assets/app-icon.icns \
+          cp src/STRMshelf.App/Assets/app-icon.icns \
             "$APP/Contents/Resources/app-icon.icns"
-          chmod +x "$APP/Contents/MacOS/STRMCreator.App"
+          chmod +x "$APP/Contents/MacOS/STRMshelf.App"
           cat > "$APP/Contents/Info.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -76,17 +76,17 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>CFBundleName</key>
-            <string>STRM Creator</string>
+            <string>STRMshelf</string>
             <key>CFBundleDisplayName</key>
-            <string>STRM Creator</string>
+            <string>STRMshelf</string>
             <key>CFBundleIdentifier</key>
-            <string>io.github.andi-sd.strmcreator</string>
+            <string>io.github.andi-sd.strmshelf</string>
             <key>CFBundleVersion</key>
-            <string>1.0.0</string>
+            <string>1.0.1</string>
             <key>CFBundleShortVersionString</key>
-            <string>1.0.0</string>
+            <string>1.0.1</string>
             <key>CFBundleExecutable</key>
-            <string>STRMCreator.App</string>
+            <string>STRMshelf.App</string>
             <key>CFBundleIconFile</key>
             <string>app-icon</string>
             <key>NSHighResolutionCapable</key>
@@ -115,49 +115,49 @@ jobs:
 
       - name: Publish Linux x64
         run: |
-          dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
+          dotnet publish src/STRMshelf.App/STRMshelf.App.csproj \
             -c Release -r linux-x64 --self-contained true \
             -o publish/app
 
       - name: Build Debian package
         run: |
           ROOT="publish/deb"
-          mkdir -p "$ROOT/DEBIAN" "$ROOT/opt/strmcreator" \
+          mkdir -p "$ROOT/DEBIAN" "$ROOT/opt/strmshelf" \
             "$ROOT/usr/bin" "$ROOT/usr/share/applications" \
             "$ROOT/usr/share/icons/hicolor/512x512/apps"
-          cp -R publish/app/. "$ROOT/opt/strmcreator/"
-          chmod +x "$ROOT/opt/strmcreator/STRMCreator.App"
-          ln -s /opt/strmcreator/STRMCreator.App "$ROOT/usr/bin/strmcreator"
-          cp src/STRMCreator.App/Assets/app-icon-512.png \
-            "$ROOT/usr/share/icons/hicolor/512x512/apps/strmcreator.png"
+          cp -R publish/app/. "$ROOT/opt/strmshelf/"
+          chmod +x "$ROOT/opt/strmshelf/STRMshelf.App"
+          ln -s /opt/strmshelf/STRMshelf.App "$ROOT/usr/bin/strmshelf"
+          cp src/STRMshelf.App/Assets/app-icon-512.png \
+            "$ROOT/usr/share/icons/hicolor/512x512/apps/strmshelf.png"
           cat > "$ROOT/DEBIAN/control" <<'CONTROL'
-          Package: strmcreator
-          Version: 1.0.0
+          Package: strmshelf
+          Version: 1.0.1
           Section: video
           Priority: optional
           Architecture: amd64
           Depends: libc6, libfontconfig1, libfreetype6, libgl1, libice6, libsm6, libsqlite3-0, libstdc++6, libx11-6, libxext6, libxfixes3, libxi6, libxrandr2, libxrender1, zlib1g
           Maintainer: AnDi-SD
-          Description: TorrServer STRM library manager
+          Description: STRM media library manager
            Creates and maintains STRM files for Infuse and compatible players.
           CONTROL
-          cat > "$ROOT/usr/share/applications/strmcreator.desktop" <<'DESKTOP'
+          cat > "$ROOT/usr/share/applications/strmshelf.desktop" <<'DESKTOP'
           [Desktop Entry]
           Type=Application
-          Name=STRM Creator
-          Comment=TorrServer STRM library manager
-          Exec=/usr/bin/strmcreator
-          Icon=strmcreator
+          Name=STRMshelf
+          Comment=STRM media library manager
+          Exec=/usr/bin/strmshelf
+          Icon=strmshelf
           Terminal=false
           Categories=AudioVideo;Utility;
           DESKTOP
           dpkg-deb --build --root-owner-group "$ROOT" \
-            publish/STRMCreator-linux-amd64.deb
+            publish/STRMshelf-linux-amd64.deb
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-amd64
-          path: publish/STRMCreator-linux-amd64.deb
+          path: publish/STRMshelf-linux-amd64.deb
           if-no-files-found: error
 
   release:
@@ -173,17 +173,17 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: STRM Creator 1.0.0
+          name: STRMshelf 1.0.1
           generate_release_notes: true
           body: |
             ## Downloads
 
             - **Windows x64:** standalone EXE; .NET installation is not required.
-            - **macOS Apple Silicon:** `STRMCreator-macos-arm64.zip`.
-            - **macOS Intel:** `STRMCreator-macos-x64.zip`.
-            - **Debian 12 / Ubuntu x64:** `STRMCreator-linux-amd64.deb`;
+            - **macOS Apple Silicon:** `STRMshelf-macos-arm64.zip`.
+            - **macOS Intel:** `STRMshelf-macos-x64.zip`.
+            - **Debian 12 / Ubuntu x64:** `STRMshelf-linux-amd64.deb`;
               native desktop libraries are installed from system repositories.
 
             macOS builds are not notarized. On first launch, allow the app in
-            **System Settings → Privacy & Security** if Gatekeeper blocks it.
+            **System Settings > Privacy & Security** if Gatekeeper blocks it.
           files: artifacts/*

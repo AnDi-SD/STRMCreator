@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AppSubtitle" xml:space="preserve"><value>Библиотека TorrServer для Infuse</value></data>
+  <data name="AddSource" xml:space="preserve"><value>Добавить источник</value></data>
+  <data name="TorrentsAndLinks" xml:space="preserve"><value>Торренты и связи</value></data>
+  <data name="Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Library" xml:space="preserve"><value>Медиатека</value></data>
+  <data name="Search" xml:space="preserve"><value>Поиск</value></data>
+  <data name="All" xml:space="preserve"><value>Все</value></data>
+  <data name="Movies" xml:space="preserve"><value>Фильмы</value></data>
+  <data name="SeriesPlural" xml:space="preserve"><value>Сериалы</value></data>
+  <data name="Series" xml:space="preserve"><value>Сериал</value></data>
+  <data name="Movie" xml:space="preserve"><value>Фильм</value></data>
+  <data name="DeleteFromLibrary" xml:space="preserve"><value>Удалить из медиатеки</value></data>
+  <data name="DeleteSelected" xml:space="preserve"><value>Удалить выбранное</value></data>
+  <data name="SyncEntireLibrary" xml:space="preserve"><value>Синхронизировать всю медиатеку</value></data>
+  <data name="SelectLibraryItem" xml:space="preserve"><value>Выберите элемент медиатеки</value></data>
+  <data name="EditorHint" xml:space="preserve"><value>Здесь появятся сведения и инструменты редактирования</value></data>
+  <data name="TitleLabel" xml:space="preserve"><value>Название</value></data>
+  <data name="Category" xml:space="preserve"><value>Категория</value></data>
+  <data name="Playback" xml:space="preserve"><value>Воспроизведение</value></data>
+  <data name="PlaySeason" xml:space="preserve"><value>▶  Воспроизвести сезон</value></data>
+  <data name="Season" xml:space="preserve"><value>Сезон</value></data>
+  <data name="Management" xml:space="preserve"><value>Управление</value></data>
+  <data name="Sources" xml:space="preserve"><value>Источники</value></data>
+  <data name="MediaFiles" xml:space="preserve"><value>Медиафайлы</value></data>
+  <data name="SourceFile" xml:space="preserve"><value>Исходный файл</value></data>
+  <data name="Index" xml:space="preserve"><value>Индекс</value></data>
+  <data name="Episode" xml:space="preserve"><value>Серия</value></data>
+  <data name="ResultStrm" xml:space="preserve"><value>Итоговый STRM</value></data>
+  <data name="Action" xml:space="preserve"><value>Действие</value></data>
+  <data name="DeleteEpisode" xml:space="preserve"><value>Удалить серию</value></data>
+  <data name="Play" xml:space="preserve"><value>Воспроизвести</value></data>
+  <data name="Delete" xml:space="preserve"><value>Удалить</value></data>
+  <data name="Ready" xml:space="preserve"><value>Готово</value></data>
+  <data name="SaveChanges" xml:space="preserve"><value>Сохранить изменения</value></data>
+  <data name="AddAndSync" xml:space="preserve"><value>Добавить и синхронизировать</value></data>
+  <data name="AddSourceTitle" xml:space="preserve"><value>Добавить источник</value></data>
+  <data name="OpenTorrentOrMagnet" xml:space="preserve"><value>Откройте torrent-файл или добавьте magnet-ссылку</value></data>
+  <data name="SelectSource" xml:space="preserve"><value>Выберите источник</value></data>
+  <data name="SelectSourceHint" xml:space="preserve"><value>Откройте torrent-файл или получите его метаданные по magnet-ссылке.</value></data>
+  <data name="AddMagnet" xml:space="preserve"><value>Добавить magnet-ссылку</value></data>
+  <data name="OpenTorrent" xml:space="preserve"><value>Открыть torrent-файл</value></data>
+  <data name="Include" xml:space="preserve"><value>Включить</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="AddToLibrary" xml:space="preserve"><value>Добавить в медиатеку</value></data>
+  <data name="LinkedTorrentSources" xml:space="preserve"><value>Привязанные torrent-источники</value></data>
+  <data name="SourceSearchHint" xml:space="preserve"><value>Поиск по torrent, произведению или info hash</value></data>
+  <data name="RelinkSelected" xml:space="preserve"><value>Перепривязать выбранный torrent к произведению</value></data>
+  <data name="Relink" xml:space="preserve"><value>Перепривязать</value></data>
+  <data name="Close" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="MagnetTitle" xml:space="preserve"><value>Добавить magnet</value></data>
+  <data name="MagnetLink" xml:space="preserve"><value>Magnet-ссылка</value></data>
+  <data name="MagnetHint" xml:space="preserve"><value>Метаданные будут получены через DHT и трекеры.</value></data>
+  <data name="GetMetadata" xml:space="preserve"><value>Получить метаданные</value></data>
+  <data name="MediaAssignment" xml:space="preserve"><value>Распределение медиафайлов</value></data>
+  <data name="File" xml:space="preserve"><value>Файл</value></data>
+  <data name="Source" xml:space="preserve"><value>Источник</value></data>
+  <data name="ApplyAssignment" xml:space="preserve"><value>Применить распределение</value></data>
+  <data name="DeleteEpisodeTitle" xml:space="preserve"><value>Удаление серии</value></data>
+  <data name="DeleteEpisodeQuestion" xml:space="preserve"><value>Удалить серию из медиатеки?</value></data>
+  <data name="DeleteEpisodeHint" xml:space="preserve"><value>Привязка и STRM-файл будут удалены. Видео останется в torrent и будет доступно в окне «Медиафайлы».</value></data>
+  <data name="DeleteLibraryTitle" xml:space="preserve"><value>Удаление из медиатеки</value></data>
+  <data name="DeleteLibraryQuestion" xml:space="preserve"><value>Удалить из медиатеки?</value></data>
+  <data name="DeleteLibraryHint" xml:space="preserve"><value>Запись и созданные STRM-файлы будут удалены. Метаданные torrent останутся в базе.</value></data>
+  <data name="RestoreStrmTitle" xml:space="preserve"><value>Восстановление STRM</value></data>
+  <data name="MissingStrm" xml:space="preserve"><value>Обнаружены отсутствующие STRM-файлы</value></data>
+  <data name="RestoreStrmHint" xml:space="preserve"><value>Файлы можно восстановить из данных медиатеки. Повторно добавлять torrent не требуется.</value></data>
+  <data name="Later" xml:space="preserve"><value>Позже</value></data>
+  <data name="Restore" xml:space="preserve"><value>Восстановить</value></data>
+  <data name="SettingsSubtitle" xml:space="preserve"><value>Подключение, каталоги медиатеки и хранение данных</value></data>
+  <data name="ServerHint" xml:space="preserve"><value>Адрес сервера, который будет записан во все STRM-файлы.</value></data>
+  <data name="LibraryFolders" xml:space="preserve"><value>Каталоги медиатеки</value></data>
+  <data name="LibraryFoldersHint" xml:space="preserve"><value>Поддерживаются локальные каталоги и сетевые UNC-пути.</value></data>
+  <data name="Browse" xml:space="preserve"><value>Обзор</value></data>
+  <data name="Database" xml:space="preserve"><value>База данных</value></data>
+  <data name="DatabaseHint" xml:space="preserve"><value>В базе хранится медиатека, источники и информация о созданных STRM.</value></data>
+  <data name="OpenExisting" xml:space="preserve"><value>Открыть существующую</value></data>
+  <data name="CreateNew" xml:space="preserve"><value>Создать новую</value></data>
+  <data name="MoveCurrent" xml:space="preserve"><value>Перенести текущую</value></data>
+  <data name="Backup" xml:space="preserve"><value>Резервная копия</value></data>
+  <data name="Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="About" xml:space="preserve"><value>О программе</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>STRMshelf создаёт и поддерживает медиатеки STRM для Infuse и других совместимых проигрывателей. В этой версии поддерживаются источники TorrServer.</value></data>
+  <data name="Creators" xml:space="preserve"><value>Создатели</value></data>
+  <data name="CreatorNames" xml:space="preserve"><value>AnDi-SD и OpenAI Codex</value></data>
+  <data name="SyncLibraryTitle" xml:space="preserve"><value>Синхронизация медиатеки</value></data>
+  <data name="SyncNowQuestion" xml:space="preserve"><value>Синхронизировать медиатеку сейчас?</value></data>
+  <data name="SyncSettingsHint" xml:space="preserve"><value>Изменения адреса TorrServer и путей должны быть применены к существующим STRM-файлам.</value></data>
+  <data name="SyncLaterWarning" xml:space="preserve"><value>Если выбрать «Позже», потребуется вручную запустить синхронизацию медиатеки.</value></data>
+  <data name="SyncNow" xml:space="preserve"><value>Синхронизировать сейчас</value></data>
+</root>

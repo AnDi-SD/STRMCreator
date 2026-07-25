@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i18n="using:STRMshelf.App.Localization"
+        x:Class="STRMshelf.App.SettingsWindow"
+        Title="{i18n:Loc Settings}" Width="760" Height="610"
+        MinWidth="680" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F5F7">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Background="#20242A" Padding="22,16">
+      <StackPanel>
+        <TextBlock Text="{i18n:Loc Settings}" Foreground="White" FontSize="22" FontWeight="SemiBold"/>
+        <TextBlock Text="{i18n:Loc SettingsSubtitle}"
+                   Foreground="#B9BEC6"/>
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="22,18" Spacing="18">
+        <StackPanel Spacing="8">
+          <TextBlock Text="TorrServer" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="{i18n:Loc ServerHint}"
+                     Foreground="#5A5F67" FontSize="12"/>
+          <TextBox x:Name="ServerUrlBox" MinHeight="38"
+                   PlaceholderText="http://127.0.0.1:8090"/>
+        </StackPanel>
+
+        <Separator/>
+
+        <StackPanel Spacing="10">
+          <TextBlock Text="{i18n:Loc LibraryFolders}" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="{i18n:Loc LibraryFoldersHint}"
+                     Foreground="#5A5F67" FontSize="12"/>
+          <Grid ColumnDefinitions="120,*,Auto" ColumnSpacing="8">
+            <TextBlock Text="{i18n:Loc Movies}" VerticalAlignment="Center"/>
+            <TextBox x:Name="MoviesPathBox" Grid.Column="1" MinHeight="38"/>
+            <Button Grid.Column="2" Content="{i18n:Loc Browse}" Click="BrowseMovies_Click"/>
+          </Grid>
+          <Grid ColumnDefinitions="120,*,Auto" ColumnSpacing="8">
+            <TextBlock Text="{i18n:Loc SeriesPlural}" VerticalAlignment="Center"/>
+            <TextBox x:Name="SeriesPathBox" Grid.Column="1" MinHeight="38"/>
+            <Button Grid.Column="2" Content="{i18n:Loc Browse}" Click="BrowseSeries_Click"/>
+          </Grid>
+        </StackPanel>
+
+        <Separator/>
+
+        <StackPanel Spacing="10">
+          <TextBlock Text="{i18n:Loc Database}" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="{i18n:Loc DatabaseHint}"
+                     Foreground="#5A5F67" FontSize="12"/>
+          <TextBox x:Name="DatabasePathBox" IsReadOnly="True" MinHeight="38"/>
+          <WrapPanel Orientation="Horizontal">
+            <Button Content="{i18n:Loc OpenExisting}" Margin="0,0,8,8" Click="OpenDatabase_Click"/>
+            <Button Content="{i18n:Loc CreateNew}" Margin="0,0,8,8" Click="CreateDatabase_Click"/>
+            <Button Content="{i18n:Loc MoveCurrent}" Margin="0,0,8,8" Click="MoveDatabase_Click"/>
+            <Button Content="{i18n:Loc Backup}" Margin="0,0,0,8" Click="BackupDatabase_Click"/>
+          </WrapPanel>
+        </StackPanel>
+
+        <Separator/>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="{i18n:Loc About}" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="{i18n:Loc AboutDescription}" Foreground="#5A5F67"
+                     TextWrapping="Wrap"/>
+          <TextBlock Text="{i18n:Loc Creators}" FontSize="12"
+                     Foreground="#5A5F67" Margin="0,4,0,0"/>
+          <TextBlock Text="{i18n:Loc CreatorNames}" FontWeight="SemiBold"/>
+        </StackPanel>
+
+        <TextBlock x:Name="StatusText" Foreground="#5A5F67" TextWrapping="Wrap"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Background="White" BorderBrush="#D9DCE1"
+            BorderThickness="0,1,0,0" Padding="22,14">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <Button Grid.Column="1" Content="{i18n:Loc Cancel}" Click="Cancel_Click"/>
+        <Button Grid.Column="2" Content="{i18n:Loc Save}" Click="Save_Click"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

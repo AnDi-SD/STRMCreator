@@ -1,10 +1,11 @@
 [English](README.md) | [Русский](README.ru_RU.md)
 
-# STRM Creator
+# STRMshelf
 
-Cross-platform desktop library manager for creating and maintaining TorrServer
-`.strm` files. The generated library is designed for Infuse, but the files use
-regular TorrServer stream URLs and can be opened by other compatible players.
+Cross-platform desktop manager for creating and maintaining `.strm` media
+libraries from external sources. The current release integrates with TorrServer
+and targets Infuse, while producing regular stream URLs that other compatible
+players can open.
 
 ## Features
 
@@ -23,7 +24,7 @@ regular TorrServer stream URLs and can be opened by other compatible players.
 - Opens, creates, moves, and backs up the active SQLite database.
 - Provides English and Russian UI resources.
 
-STRM Creator does not download media payloads. Magnet metadata resolution relies
+STRMshelf does not download media payloads. Magnet metadata resolution relies
 on DHT and trackers, requires active peers, and may take several minutes.
 
 ## Requirements
@@ -37,7 +38,7 @@ on DHT and trackers, requires active peers, and may take several minutes.
 
 ```shell
 dotnet restore
-dotnet run --project src/STRMCreator.App
+dotnet run --project src/STRMshelf.App
 ```
 
 On first launch, open **Settings** and configure the TorrServer URL plus separate
@@ -48,14 +49,14 @@ output folders for movies and TV shows.
 Build and test the full solution:
 
 ```shell
-dotnet build STRMCreator.sln -c Release
-dotnet test STRMCreator.sln -c Release --no-build
+dotnet build STRMshelf.sln -c Release
+dotnet test STRMshelf.sln -c Release --no-build
 ```
 
 Create a self-contained single-file Windows x64 executable:
 
 ```shell
-dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
+dotnet publish src/STRMshelf.App/STRMshelf.App.csproj \
   -c Release -r win-x64 --self-contained true \
   -p:PublishSingleFile=true \
   -p:IncludeNativeLibrariesForSelfExtract=true \
@@ -66,7 +67,7 @@ Replace `win-x64` with another supported .NET runtime identifier to publish for 
 different platform.
 
 Prebuilt Windows, macOS, and Debian packages are available on the
-[Releases](https://github.com/AnDi-SD/STRMCreator/releases) page.
+[Releases](https://github.com/AnDi-SD/STRMshelf/releases) page.
 
 ## Data storage
 
@@ -74,7 +75,7 @@ The default database is stored in the current user's local application data
 directory:
 
 ```text
-STRMCreator/library.db
+STRMshelf/library.db
 ```
 
 The database location can be changed in Settings. A small `config.json` file next
@@ -88,10 +89,10 @@ does not remove unrelated files from media folders.
 ## Project structure
 
 ```text
-src/STRMCreator.App             Avalonia desktop UI
-src/STRMCreator.Core            Torrent recognition and STRM domain logic
-src/STRMCreator.Infrastructure  SQLite, magnet metadata, and file synchronization
-tests/STRMCreator.Tests         Unit and integration tests
+src/STRMshelf.App             Avalonia desktop UI
+src/STRMshelf.Core            Torrent recognition and STRM domain logic
+src/STRMshelf.Infrastructure  SQLite, magnet metadata, and file synchronization
+tests/STRMshelf.Tests         Unit and integration tests
 ```
 
 ## Localization
@@ -99,8 +100,8 @@ tests/STRMCreator.Tests         Unit and integration tests
 UI strings are stored in:
 
 ```text
-src/STRMCreator.App/Localization/Strings.resx
-src/STRMCreator.App/Localization/Strings.ru.resx
+src/STRMshelf.App/Localization/Strings.resx
+src/STRMshelf.App/Localization/Strings.ru.resx
 ```
 
 To add a language, copy the neutral resource file to
@@ -114,12 +115,12 @@ parsing, recognition, database behavior, or file synchronization changes.
 Before opening a pull request, run:
 
 ```shell
-dotnet test STRMCreator.sln -c Release
-dotnet format STRMCreator.sln --verify-no-changes
+dotnet test STRMshelf.sln -c Release
+dotnet format STRMshelf.sln --verify-no-changes
 ```
 
 ## License
 
-STRM Creator is available under the [MIT License](LICENSE). You may use,
+STRMshelf is available under the [MIT License](LICENSE). You may use,
 modify, and redistribute the project as long as the copyright and license
 notice are retained.
