@@ -8,7 +8,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
-using Avalonia.Platform.Storage;
 using STRMCreator.App.Localization;
 using STRMCreator.Core;
 using STRMCreator.Infrastructure;
@@ -21,14 +20,12 @@ public partial class MainWindow : Window
     private readonly BootstrapConfigStore _bootstrap = new();
     private readonly StreamSynchronizer _synchronizer = new();
     private readonly TorrentParser _torrentParser = new();
-    private readonly MagnetMetadataService _magnetMetadata = new();
     private readonly ObservableCollection<EpisodeRow> _episodes = [];
     private readonly ObservableCollection<LibraryRow> _library = [];
     private readonly List<LibraryRow> _allLibrary = [];
     private TorrentMetadata? _torrent;
     private string? _torrentPath;
     private AppSettings _settings = AppSettings.Default;
-    private List<SeriesChoice> _seriesChoices = [];
     private LibraryItem? _editingItem;
     private LibraryRow? _editingGroup;
     private bool _loadingEditor;
@@ -43,8 +40,8 @@ public partial class MainWindow : Window
         _database = new LibraryDatabase(_bootstrap.DefaultDatabasePath);
         EpisodeList.ItemsSource = _episodes;
         LibraryList.ItemsSource = _library;
-        LanguageButton.Content = LocalizationManager.Get(
-            LocalizationManager.Language == "ru" ? "LanguageRussian" : "LanguageEnglish");
+        EnglishLanguageContent.IsVisible = LocalizationManager.Language == "en";
+        RussianLanguageContent.IsVisible = LocalizationManager.Language == "ru";
         Opened += async (_, _) => await InitializeAsync();
     }
 
@@ -86,19 +83,6 @@ public partial class MainWindow : Window
         {
             SetStatus(exception.Message, true);
         }
-    }
-
-    private async void OpenTorrent_Click(object? sender, RoutedEventArgs e)
-    {
-        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Select a torrent file",
-            AllowMultiple = false,
-            FileTypeFilter = [new FilePickerFileType("Torrent") { Patterns = ["*.torrent"] }]
-        });
-        var path = files.FirstOrDefault()?.TryGetLocalPath();
-        if (path is null) return;
-        await LoadTorrentAsync(path);
     }
 
     private async void AddSource_Click(object? sender, RoutedEventArgs e)
@@ -162,76 +146,11 @@ public partial class MainWindow : Window
         SetStatus($"Source added: {created} created, {updated} updated.");
     }
 
-    private async void OpenMagnet_Click(object? sender, RoutedEventArgs e)
-    {
-        var magnet = await new MagnetDialog().ShowDialog<string?>(this);
-        if (string.IsNullOrWhiteSpace(magnet)) return;
-        try
-        {
-            SetStatus("Retrieving magnet metadata. This may take several minutes.");
-            var directory = Path.Combine(Path.GetDirectoryName(_database.DatabasePath)!, "Torrents");
-            using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
-            var path = await _magnetMetadata.DownloadAsync(magnet, directory, timeout.Token);
-            await LoadTorrentAsync(path);
-        }
-        catch (OperationCanceledException)
-        {
-            SetStatus("Magnet metadata retrieval timed out.", true);
-        }
-        catch (Exception exception)
-        {
-            SetStatus($"Could not retrieve magnet metadata: {exception.Message}", true);
-        }
-    }
-
-    private async Task LoadTorrentAsync(string path)
-    {
-        try
-        {
-            ResetEditor();
-            _torrent = _torrentParser.Parse(path);
-            _torrentPath = path;
-            var suggested = Recognition.SuggestTitle(_torrent.Name);
-            _seriesChoices = (await _database.FindSeriesAsync(suggested))
-                .Select(x => new SeriesChoice(x.Id, x.Name, x.Score, x.Seasons)).ToList();
-            var confident = _seriesChoices.FirstOrDefault(x => x.Score >= 0.86);
-            TitleBox.Text = confident?.Name ?? suggested;
-            TorrentSummaryText.Text =
-                $"{Path.GetFileName(path)} | {_torrent.Files.Count} files | " +
-                $"{_torrent.Files.Count(x => x.IsVideo())} videos | {_torrent.InfoHash}";
-            ImportButton.IsVisible = true;
-            BuildEpisodePreview();
-            SetStatus("Metadata loaded. Check the title and numbering.");
-        }
-        catch (Exception exception)
-        {
-            SetStatus($"Could not read the torrent: {exception.Message}", true);
-        }
-    }
-
-    private void BuildEpisodePreview()
-    {
-        if (_torrent is null) return;
-        var isSeries = SeriesKindRadio.IsChecked == true;
-        var title = CurrentTitle();
-        var season = SeasonBox.Value;
-        var first = FirstEpisodeBox.Value;
-        var candidates = Recognition.DetectEpisodes(_torrent, season, first);
-        var previewCandidates = isSeries
-            ? candidates
-            : candidates.OrderByDescending(x => x.Source.Length).Take(1);
-        _episodes.Clear();
-        foreach (var candidate in previewCandidates)
-            AddEpisodeRow(new EpisodeRow(candidate.Source, candidate.SeasonNumber,
-                candidate.EpisodeNumber, () => CurrentTitle(), isSeries));
-        EpisodeList.IsVisible = _episodes.Count > 0;
-    }
-
     private async void ImportAndSync_Click(object? sender, RoutedEventArgs e)
     {
-        if (_torrent is null || _torrentPath is null)
+        if (_torrent is null || _torrentPath is null || _editingItem is null)
         {
-            SetStatus("Select a torrent file first.", true);
+            SetStatus("Select a library item first.", true);
             return;
         }
 
@@ -242,46 +161,11 @@ public partial class MainWindow : Window
             var title = CurrentTitle();
             if (string.IsNullOrWhiteSpace(title))
                 throw new InvalidOperationException("Enter a title.");
-            var root = kind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
             var outputDirectory = OutputPath.SanitizeSegment(title);
             long? seriesId = null;
-            int? season = kind == MediaKind.Series ? SeasonBox.Value : null;
             if (kind == MediaKind.Series)
                 seriesId = await _database.GetOrCreateSeriesAsync(title, _torrent.Name);
-
-            if (_editingItem is not null)
-            {
-                await SaveEditedItemAsync(kind, seriesId, title, outputDirectory);
-                return;
-            }
-
-            var created = 0;
-            var updated = 0;
-            var deleted = 0;
-            var unchanged = 0;
-            var groups = kind == MediaKind.Movie
-                ? new[] { _episodes.AsEnumerable() }
-                : _episodes.Where(x => x.Selected).GroupBy(x => x.Season).Select(x => x.AsEnumerable());
-            foreach (var group in groups)
-            {
-                var rows = group.ToArray();
-                var groupSeason = kind == MediaKind.Series ? rows.First().Season : season;
-                var itemId = await _database.UpsertLibraryItemAsync(kind, seriesId, title, _torrentPath,
-                    _torrent.InfoHash, groupSeason, outputDirectory);
-                var previous = await _database.GetStreamsAsync(itemId);
-                var streams = BuildStreams(itemId, kind, title, outputDirectory, rows);
-                var plan = await _synchronizer.PlanAsync(root, streams, previous);
-                await _synchronizer.ApplyAsync(root, plan);
-                await _database.ReplaceStreamsAsync(itemId, streams);
-                created += plan.Create.Count;
-                updated += plan.Update.Count;
-                deleted += plan.Delete.Count;
-                unchanged += plan.Unchanged.Count;
-            }
-            await RefreshLibraryAsync();
-            ResetEditor();
-            SetStatus($"Done: {created} created, {updated} updated, " +
-                      $"{deleted} deleted, {unchanged} unchanged.");
+            await SaveEditedItemAsync(kind, seriesId, title, outputDirectory);
         }
         catch (Exception exception)
         {
@@ -532,29 +416,11 @@ public partial class MainWindow : Window
         }
     }
 
-    private void Numbering_Changed(object? sender, EventArgs e)
-    {
-        if (_loadingEditor) return;
-        if (_editingItem is null)
-        {
-            BuildEpisodePreview();
-            return;
-        }
-
-        MarkEditorDirty();
-        var episode = FirstEpisodeBox.Value;
-        foreach (var row in _episodes.Where(x => x.Selected))
-        {
-            row.Season = SeasonBox.Value;
-            row.Episode = episode++;
-        }
-    }
     private void MediaKind_Changed(object? sender, RoutedEventArgs e)
     {
         if (_loadingEditor) return;
         var series = SeriesKindRadio?.IsChecked == true;
         ApplyMediaKindVisibility(series);
-        BuildEpisodePreview();
         MarkEditorDirty();
     }
 
@@ -1044,8 +910,6 @@ public partial class MainWindow : Window
             TitleBox.Text = item.Title;
             SeriesKindRadio.IsChecked = item.Kind == MediaKind.Series;
             MovieKindRadio.IsChecked = item.Kind == MediaKind.Movie;
-            SeasonBox.Value = item.SeasonNumber ?? 1;
-            FirstEpisodeBox.Value = 1;
             ApplyMediaKindVisibility(item.Kind == MediaKind.Series);
 
             var storedByIndex = streams.ToDictionary(x => x.TorrentIndex);
@@ -1104,7 +968,6 @@ public partial class MainWindow : Window
         _editingGroup = null;
         _torrent = null;
         _torrentPath = null;
-        _seriesChoices = [];
         _episodes.Clear();
         TitleBox.Text = "";
         EditorTitleText.Text = LocalizationManager.Get("SelectLibraryItem");
@@ -1229,12 +1092,6 @@ public partial class MainWindow : Window
         StatusText.Text = text;
         StatusText.Foreground = Avalonia.Media.Brushes.Red;
         if (!error) StatusText.Foreground = Avalonia.Media.Brushes.DimGray;
-    }
-
-    private sealed record SeriesChoice(long Id, string Name, double Score, IReadOnlyList<int> Seasons)
-    {
-        public override string ToString() =>
-            Seasons.Count == 0 ? Name : $"{Name} (seasons: {string.Join(", ", Seasons)})";
     }
 
     private sealed record EditorSnapshot(string Title, MediaKind Kind, string Rows);

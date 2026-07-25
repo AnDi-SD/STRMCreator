@@ -62,8 +62,36 @@
           <Button x:Name="SettingsToggle" Classes="topbar" Content="{i18n:Loc Settings}"
                   BorderThickness="1"
                   Click="SettingsToggle_Click"/>
-          <Button x:Name="LanguageButton" Classes="topbar" MinWidth="82"
-                  BorderThickness="1" Click="Language_Click"/>
+          <Button x:Name="LanguageButton" Classes="topbar" MinWidth="92"
+                  BorderThickness="1" Click="Language_Click">
+            <Grid>
+              <StackPanel x:Name="EnglishLanguageContent" Orientation="Horizontal"
+                          Spacing="8" VerticalAlignment="Center">
+                <Border Width="24" Height="16" Background="#21468B"
+                        ClipToBounds="True" CornerRadius="1">
+                  <Grid>
+                    <Border Width="7" Background="White"/>
+                    <Border Height="7" Background="White"/>
+                    <Border Width="3" Background="#C8102E"/>
+                    <Border Height="3" Background="#C8102E"/>
+                  </Grid>
+                </Border>
+                <TextBlock Text="EN" VerticalAlignment="Center"/>
+              </StackPanel>
+              <StackPanel x:Name="RussianLanguageContent" Orientation="Horizontal"
+                          Spacing="8" VerticalAlignment="Center">
+                <Border Width="24" Height="16" BorderBrush="#C9CDD3"
+                        BorderThickness="0.5" ClipToBounds="True" CornerRadius="1">
+                  <Grid RowDefinitions="*,*,*">
+                    <Border Background="White"/>
+                    <Border Grid.Row="1" Background="#1955A6"/>
+                    <Border Grid.Row="2" Background="#D52B1E"/>
+                  </Grid>
+                </Border>
+                <TextBlock Text="RU" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Grid>
+          </Button>
         </StackPanel>
       </Grid>
     </Border>
@@ -162,8 +190,6 @@
                   <TextBlock Classes="label" Text="{i18n:Loc Season}"/>
                   <ComboBox x:Name="SeasonSelector" MinHeight="40"
                             SelectionChanged="SeasonSelector_Changed"/>
-                  <local:NumberStepper x:Name="SeasonBox" Minimum="0" Maximum="999" Value="1"
-                                       ValueChanged="Numbering_Changed" IsVisible="False"/>
                 </StackPanel>
                 <StackPanel x:Name="EpisodeControls" Width="320" Margin="0,0,0,10">
                   <TextBlock Classes="label" Text="{i18n:Loc Management}"/>
@@ -173,8 +199,6 @@
                     <Button Grid.Column="1" Content="{i18n:Loc MediaFiles}" Height="40"
                             HorizontalAlignment="Stretch" Click="ShowMediaFiles_Click"/>
                   </Grid>
-                  <local:NumberStepper x:Name="FirstEpisodeBox" Minimum="0" Maximum="9999" Value="1"
-                                       ValueChanged="Numbering_Changed" IsVisible="False"/>
                 </StackPanel>
               </WrapPanel>
             </Grid>

@@ -81,6 +81,8 @@ public sealed class LibraryDatabase(string databasePath)
 
     private static async Task ImportExistingTorrentFilesAsync(SqliteConnection connection)
     {
+        // One-time compatibility migration for databases created before torrent payloads
+        // were embedded. New records never depend on the original file remaining on disk.
         var select = connection.CreateCommand();
         select.CommandText =
             """
@@ -200,11 +202,11 @@ public sealed class LibraryDatabase(string databasePath)
         await using var connection = await OpenAsync();
         await using var transaction = await connection.BeginTransactionAsync();
         foreach (var pair in new Dictionary<string, string>
-                 {
-                     ["server_url"] = settings.ServerUrl.TrimEnd('/'),
-                     ["movies_path"] = settings.MoviesPath,
-                     ["series_path"] = settings.SeriesPath
-                 })
+        {
+            ["server_url"] = settings.ServerUrl.TrimEnd('/'),
+            ["movies_path"] = settings.MoviesPath,
+            ["series_path"] = settings.SeriesPath
+        })
         {
             var command = connection.CreateCommand();
             command.Transaction = (SqliteTransaction)transaction;

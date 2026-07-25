@@ -114,6 +114,6 @@ public sealed class LibraryDatabaseTests
     {
         var service = new MagnetMetadataService();
         await Assert.ThrowsAsync<FormatException>(() =>
-            service.DownloadAsync("not-a-magnet", Path.GetTempPath(), CancellationToken.None));
+            service.DownloadDataAsync("not-a-magnet", Path.GetTempPath(), CancellationToken.None));
     }
 }

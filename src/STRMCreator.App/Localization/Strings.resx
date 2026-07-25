@@ -84,11 +84,13 @@
   <data name="MoveCurrent" xml:space="preserve"><value>Move current</value></data>
   <data name="Backup" xml:space="preserve"><value>Backup</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="About" xml:space="preserve"><value>About</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>STRM Creator builds and maintains a media library of TorrServer STRM files for Infuse and other compatible players.</value></data>
+  <data name="Creators" xml:space="preserve"><value>Created by</value></data>
+  <data name="CreatorNames" xml:space="preserve"><value>AnDi-SD and OpenAI Codex</value></data>
   <data name="SyncLibraryTitle" xml:space="preserve"><value>Library synchronization</value></data>
   <data name="SyncNowQuestion" xml:space="preserve"><value>Synchronize the library now?</value></data>
   <data name="SyncSettingsHint" xml:space="preserve"><value>Changes to the TorrServer address and folders must be applied to existing STRM files.</value></data>
   <data name="SyncLaterWarning" xml:space="preserve"><value>If you choose Later, you will need to start library synchronization manually.</value></data>
   <data name="SyncNow" xml:space="preserve"><value>Synchronize now</value></data>
-  <data name="LanguageEnglish" xml:space="preserve"><value>🇬🇧 EN</value></data>
-  <data name="LanguageRussian" xml:space="preserve"><value>🇷🇺 RU</value></data>
 </root>

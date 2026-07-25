@@ -16,6 +16,7 @@ public sealed class TorrentParser
         var info = (Dictionary<string, object>)root["info"];
         var name = ReadText(info, "name.utf-8", "name");
         var files = ReadFiles(info);
+        // BitTorrent v1 hashes the original bencoded info slice, not a re-encoded dictionary.
         var infoHash = Convert.ToHexString(
             SHA1.HashData(metainfo.Span[parser.InfoStart..parser.InfoEnd])).ToLowerInvariant();
         return new TorrentMetadata(name, infoHash, files);
@@ -30,6 +31,7 @@ public sealed class TorrentParser
         {
             var file = (Dictionary<string, object>)raw;
             var path = ReadList(file, "path.utf-8", "path").Cast<byte[]>().Select(DecodeText);
+            // TorrServer addresses files with one-based indexes.
             return new TorrentFile(index + 1, string.Join("/", path), (long)file["length"]);
         }).ToArray();
     }

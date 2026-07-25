@@ -17,7 +17,7 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var bootstrap = new BootstrapConfigStore().LoadAsync().GetAwaiter().GetResult();
+            var bootstrap = new BootstrapConfigStore().Load();
             LocalizationManager.SetLanguage(bootstrap.Language);
             desktop.MainWindow = new MainWindow();
         }

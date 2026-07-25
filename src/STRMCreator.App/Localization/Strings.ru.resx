@@ -84,11 +84,13 @@
   <data name="MoveCurrent" xml:space="preserve"><value>Перенести текущую</value></data>
   <data name="Backup" xml:space="preserve"><value>Резервная копия</value></data>
   <data name="Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="About" xml:space="preserve"><value>О программе</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>STRM Creator создаёт и поддерживает медиатеку STRM-файлов TorrServer для Infuse и других совместимых проигрывателей.</value></data>
+  <data name="Creators" xml:space="preserve"><value>Создатели</value></data>
+  <data name="CreatorNames" xml:space="preserve"><value>AnDi-SD и OpenAI Codex</value></data>
   <data name="SyncLibraryTitle" xml:space="preserve"><value>Синхронизация медиатеки</value></data>
   <data name="SyncNowQuestion" xml:space="preserve"><value>Синхронизировать медиатеку сейчас?</value></data>
   <data name="SyncSettingsHint" xml:space="preserve"><value>Изменения адреса TorrServer и путей должны быть применены к существующим STRM-файлам.</value></data>
   <data name="SyncLaterWarning" xml:space="preserve"><value>Если выбрать «Позже», потребуется вручную запустить синхронизацию медиатеки.</value></data>
   <data name="SyncNow" xml:space="preserve"><value>Синхронизировать сейчас</value></data>
-  <data name="LanguageEnglish" xml:space="preserve"><value>🇬🇧 EN</value></data>
-  <data name="LanguageRussian" xml:space="preserve"><value>🇷🇺 RU</value></data>
 </root>

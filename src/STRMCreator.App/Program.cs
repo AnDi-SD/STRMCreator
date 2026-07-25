@@ -1,18 +1,15 @@
-﻿using Avalonia;
+using Avalonia;
 using System;
 
 namespace STRMCreator.App;
 
 class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
     [STAThread]
     public static void Main(string[] args) => BuildAvaloniaApp()
         .StartWithClassicDesktopLifetime(args);
 
-    // Avalonia configuration, don't remove; also used by visual designer.
+    // Kept in a separate method because the Avalonia designer uses it as an entry point.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()

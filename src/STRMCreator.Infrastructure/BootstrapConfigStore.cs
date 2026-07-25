@@ -33,6 +33,21 @@ public sealed class BootstrapConfigStore
         }
     }
 
+    public BootstrapConfig Load()
+    {
+        if (!File.Exists(_configPath))
+            return new BootstrapConfig(DefaultDatabasePath);
+        try
+        {
+            return JsonSerializer.Deserialize<BootstrapConfig>(File.ReadAllText(_configPath))
+                   ?? new BootstrapConfig(DefaultDatabasePath);
+        }
+        catch (JsonException)
+        {
+            return new BootstrapConfig(DefaultDatabasePath);
+        }
+    }
+
     public async Task SaveAsync(string databasePath)
     {
         var current = await LoadAsync();

@@ -22,7 +22,7 @@
           <TextBlock Text="{i18n:Loc ServerHint}"
                      Foreground="#5A5F67" FontSize="12"/>
           <TextBox x:Name="ServerUrlBox" MinHeight="38"
-                   PlaceholderText="http://192.168.1.1:8090"/>
+                   PlaceholderText="http://127.0.0.1:8090"/>
         </StackPanel>
 
         <Separator/>
@@ -56,6 +56,17 @@
             <Button Content="{i18n:Loc MoveCurrent}" Margin="0,0,8,8" Click="MoveDatabase_Click"/>
             <Button Content="{i18n:Loc Backup}" Margin="0,0,0,8" Click="BackupDatabase_Click"/>
           </WrapPanel>
+        </StackPanel>
+
+        <Separator/>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="{i18n:Loc About}" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="{i18n:Loc AboutDescription}" Foreground="#5A5F67"
+                     TextWrapping="Wrap"/>
+          <TextBlock Text="{i18n:Loc Creators}" FontSize="12"
+                     Foreground="#5A5F67" Margin="0,4,0,0"/>
+          <TextBlock Text="{i18n:Loc CreatorNames}" FontWeight="SemiBold"/>
         </StackPanel>
 
         <TextBlock x:Name="StatusText" Foreground="#5A5F67" TextWrapping="Wrap"/>

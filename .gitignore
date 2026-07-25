@@ -5,7 +5,10 @@ obj/
 .dotnet-home/
 artifacts/
 AvaloniaUI/
+.vscode/
 *.user
+*.suo
 *.db
 *.db-shm
 *.db-wal
+*.tmp

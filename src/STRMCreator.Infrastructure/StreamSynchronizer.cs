@@ -73,6 +73,7 @@ public sealed class StreamSynchronizer
 
     private static string Resolve(string root, string relative)
     {
+        // Managed relative paths must never escape the configured library root.
         var fullRoot = Path.GetFullPath(root);
         var fullPath = Path.GetFullPath(Path.Combine(fullRoot,
             relative.Replace('/', Path.DirectorySeparatorChar)));

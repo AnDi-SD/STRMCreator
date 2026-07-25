@@ -1,43 +1,120 @@
 # STRM Creator
 
-Cross-platform desktop library manager that creates and keeps TorrServer `.strm`
-files up to date for Infuse.
+Cross-platform desktop library manager for creating and maintaining TorrServer
+`.strm` files. The generated library is designed for Infuse, but the files use
+regular TorrServer stream URLs and can be opened by other compatible players.
 
-## Current features
+## Features
 
-- Reads `.torrent` metadata locally without adding torrents to TorrServer.
-- Calculates the BitTorrent v1 info hash and preserves TorrServer's one-based file indexes.
-- Detects video files and common season/episode naming schemes.
-- Supports torrents containing several seasons and lets every episode's season be corrected.
-- Keeps series, aliases, seasons, sources, and managed streams in a local SQLite database.
-- Creates movie and series directory layouts.
-- Supports local paths, Windows UNC paths, and mounted network paths on Linux/macOS.
-- Regenerates all managed streams when the TorrServer address changes.
-- Writes streams atomically and never removes files it does not manage.
-- Opens, creates, moves, and safely backs up the active SQLite database.
-- Resolves magnet links to `.torrent` metadata through DHT and trackers using MonoTorrent.
+- Imports local `.torrent` files and magnet links.
+- Reads torrent metadata without adding the torrent to TorrServer.
+- Stores torrent metadata and magnet links inside the SQLite database, so the
+  original source files are not required after import.
+- Detects movies, TV shows, seasons, and episode numbers with manual correction.
+- Supports torrents containing multiple seasons.
+- Groups multiple torrent sources under one movie or TV show.
+- Reassigns torrent sources and individual media files to another library item.
+- Creates, updates, restores, and removes managed `.strm` files.
+- Regenerates the library after the TorrServer address or output folders change.
+- Supports local folders, Windows UNC paths, and mounted network folders.
+- Opens an episode, movie, or complete season in the default media player.
+- Opens, creates, moves, and backs up the active SQLite database.
+- Provides English and Russian UI resources.
 
-Magnet metadata resolution requires active peers and can take several minutes. The
-application does not download the media payload.
+STRM Creator does not download media payloads. Magnet metadata resolution relies
+on DHT and trackers, requires active peers, and may take several minutes.
 
 ## Requirements
 
-- .NET 10 SDK
-- Windows 10 or later, Linux with system `sqlite3`, or macOS with system `sqlite3`
+- Windows 10 or later, Linux, or macOS
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) when building from source
+- A reachable TorrServer instance
+- System `sqlite3` on Linux and macOS
 
-## Run
+## Run from source
 
-```powershell
+```shell
 dotnet restore
 dotnet run --project src/STRMCreator.App
 ```
 
-By default, the database is stored in the current user's local application data
-directory under `STRMCreator/library.db`. Its location can be changed in Settings.
-The small local `config.json` only remembers which database is active.
+On first launch, open **Settings** and configure the TorrServer URL plus separate
+output folders for movies and TV shows.
 
-## Test
+## Build
 
-```powershell
-dotnet test
+Build and test the full solution:
+
+```shell
+dotnet build STRMCreator.sln -c Release
+dotnet test STRMCreator.sln -c Release --no-build
 ```
+
+Create a self-contained single-file Windows x64 executable:
+
+```shell
+dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
+  -c Release -r win-x64 --self-contained true \
+  -p:PublishSingleFile=true \
+  -p:IncludeNativeLibrariesForSelfExtract=true \
+  -o artifacts/release/win-x64
+```
+
+Replace `win-x64` with another supported .NET runtime identifier to publish for a
+different platform.
+
+## Data storage
+
+The default database is stored in the current user's local application data
+directory:
+
+```text
+STRMCreator/library.db
+```
+
+The database location can be changed in Settings. A small `config.json` file next
+to the default database stores only the active database path and selected
+language. Library databases, WAL files, build output, and local IDE settings are
+excluded from Git.
+
+The application only deletes STRM files recorded as managed in the database. It
+does not remove unrelated files from media folders.
+
+## Project structure
+
+```text
+src/STRMCreator.App             Avalonia desktop UI
+src/STRMCreator.Core            Torrent recognition and STRM domain logic
+src/STRMCreator.Infrastructure  SQLite, magnet metadata, and file synchronization
+tests/STRMCreator.Tests         Unit and integration tests
+```
+
+## Localization
+
+UI strings are stored in:
+
+```text
+src/STRMCreator.App/Localization/Strings.resx
+src/STRMCreator.App/Localization/Strings.ru.resx
+```
+
+To add a language, copy the neutral resource file to
+`Strings.<culture>.resx`, translate the values, and add the culture to
+`LocalizationManager.SetLanguage`.
+
+## Development
+
+Keep changes scoped to the appropriate project and include tests for torrent
+parsing, recognition, database behavior, or file synchronization changes.
+Before opening a pull request, run:
+
+```shell
+dotnet test STRMCreator.sln -c Release
+dotnet format STRMCreator.sln --verify-no-changes
+```
+
+## License
+
+STRM Creator is available under the [MIT License](LICENSE). You may use,
+modify, and redistribute the project as long as the copyright and license
+notice are retained.
