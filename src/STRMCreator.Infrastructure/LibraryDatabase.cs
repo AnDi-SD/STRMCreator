@@ -17,8 +17,11 @@ public sealed class LibraryDatabase(string databasePath)
     private string ConnectionString => new SqliteConnectionStringBuilder
     {
         DataSource = databasePath,
-        Mode = SqliteOpenMode.ReadWriteCreate
+        Mode = SqliteOpenMode.ReadWriteCreate,
+        Pooling = false
     }.ToString();
+
+    public string DatabasePath => Path.GetFullPath(databasePath);
 
     public async Task InitializeAsync()
     {
@@ -67,6 +70,34 @@ public sealed class LibraryDatabase(string databasePath)
             );
             """;
         await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task BackupAsync(string destinationPath)
+    {
+        destinationPath = Path.GetFullPath(destinationPath);
+        if (string.Equals(destinationPath, DatabasePath, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Backup path must differ from the active database.");
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+        var temporary = destinationPath + $".{Guid.NewGuid():N}.tmp";
+        try
+        {
+            await using var source = await OpenAsync();
+            await using var destination = new SqliteConnection(new SqliteConnectionStringBuilder
+            {
+                DataSource = temporary,
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Pooling = false
+            }.ToString());
+            await destination.OpenAsync();
+            source.BackupDatabase(destination);
+            await destination.CloseAsync();
+            File.Move(temporary, destinationPath, true);
+        }
+        finally
+        {
+            if (File.Exists(temporary))
+                File.Delete(temporary);
+        }
     }
 
     public async Task<AppSettings> GetSettingsAsync()

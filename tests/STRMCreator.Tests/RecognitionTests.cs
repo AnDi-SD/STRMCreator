@@ -38,6 +38,22 @@ public sealed class RecognitionTests
         Assert.Equal(1, Recognition.Similarity("Full Metal Panic!", "fullmetalpanic"));
 
     [Fact]
+    public void DetectEpisodes_RecognizesSeasonFoldersInOneTorrent()
+    {
+        var torrent = new TorrentMetadata("Show Seasons 1-2", "hash",
+        [
+            new TorrentFile(1, "Season 1/Show E01.mkv", 100),
+            new TorrentFile(2, "Season 2/Show E01.mkv", 100)
+        ]);
+
+        var result = Recognition.DetectEpisodes(torrent);
+
+        Assert.Equal([1, 2], result.Select(x => x.SeasonNumber));
+        Assert.Equal([1, 1], result.Select(x => x.EpisodeNumber));
+        Assert.Equal([1, 2], result.Select(x => x.Source.Index));
+    }
+
+    [Fact]
     public void StreamUrl_UsesTorrentIndexAndEscapesFileName()
     {
         var file = new TorrentFile(47, "folder/Full Metal Panic! 24.mkv", 100);

@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="STRMCreator.App.MagnetDialog"
+        Title="Добавить magnet" Width="680" Height="230"
+        MinWidth="520" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F5F7">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20" RowSpacing="10">
+    <StackPanel>
+      <TextBlock Text="Magnet-ссылка" FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock Text="Метаданные будут получены через DHT и трекеры."
+                 Foreground="#5A5F67" FontSize="12"/>
+    </StackPanel>
+    <TextBox x:Name="MagnetTextBox" Grid.Row="1" AcceptsReturn="True"
+             TextWrapping="Wrap" PlaceholderText="magnet:?xt=urn:btih:..."/>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="Отмена" Click="Cancel_Click"/>
+      <Button Content="Получить метаданные" Click="Accept_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>

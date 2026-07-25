@@ -46,7 +46,8 @@
 
     <Border x:Name="SettingsPanel" Grid.Row="1" Background="#E9EBEF" Padding="20,14"
             BorderBrush="#D1D4D9" BorderThickness="0,0,0,1" IsVisible="False">
-      <Grid ColumnDefinitions="1.2*,1.5*,Auto,1.5*,Auto,Auto" ColumnSpacing="8">
+      <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="1.2*,1.5*,Auto,1.5*,Auto,Auto"
+            ColumnSpacing="8" RowSpacing="12">
         <StackPanel>
           <TextBlock Classes="label" Text="TorrServer"/>
           <TextBox x:Name="ServerUrlBox" PlaceholderText="http://192.168.1.1:8090"/>
@@ -63,6 +64,20 @@
         <Button Grid.Column="4" Content="Обзор" VerticalAlignment="Bottom" Click="BrowseSeries_Click"/>
         <Button Grid.Column="5" Content="Сохранить и проверить" VerticalAlignment="Bottom"
                 Click="SaveSettings_Click"/>
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="4">
+          <TextBlock Classes="label" Text="Файл базы данных"/>
+          <TextBox x:Name="DatabasePathBox" IsReadOnly="True"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal"
+                    Spacing="8" VerticalAlignment="Bottom">
+          <Button Content="Открыть" Click="SelectDatabase_Click"/>
+          <Button Content="Новая" Click="CreateDatabase_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="5" Orientation="Horizontal"
+                    Spacing="8" VerticalAlignment="Bottom">
+          <Button Content="Перенести" Click="MoveDatabase_Click"/>
+          <Button Content="Backup" Click="BackupDatabase_Click"/>
+        </StackPanel>
       </Grid>
     </Border>
 
@@ -102,7 +117,10 @@
               <TextBlock x:Name="TorrentSummaryText" Classes="label"
                          Text="Выберите torrent-файл, чтобы увидеть его содержимое"/>
             </StackPanel>
-            <Button Grid.Column="1" Content="Открыть torrent" Click="OpenTorrent_Click"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+              <Button Content="Добавить magnet" Click="OpenMagnet_Click"/>
+              <Button Content="Открыть torrent" Click="OpenTorrent_Click"/>
+            </StackPanel>
           </Grid>
 
           <Border Grid.Row="1" Background="#F7F8FA" BorderBrush="#E2E4E8"
@@ -136,24 +154,27 @@
           </Border>
 
           <Grid Grid.Row="2" RowDefinitions="Auto,*,Auto">
-            <Grid Margin="20,14,20,8" ColumnDefinitions="80,*,80,80,220">
+            <Grid Margin="20,14,20,8" ColumnDefinitions="70,*,65,95,95,210">
               <TextBlock Text="Включить" Classes="label"/>
               <TextBlock Grid.Column="1" Text="Исходный файл" Classes="label"/>
               <TextBlock Grid.Column="2" Text="Индекс" Classes="label"/>
-              <TextBlock Grid.Column="3" Text="Серия" Classes="label"/>
-              <TextBlock Grid.Column="4" Text="Итоговый STRM" Classes="label"/>
+              <TextBlock Grid.Column="3" Text="Сезон" Classes="label"/>
+              <TextBlock Grid.Column="4" Text="Серия" Classes="label"/>
+              <TextBlock Grid.Column="5" Text="Итоговый STRM" Classes="label"/>
             </Grid>
             <ListBox x:Name="EpisodeList" Grid.Row="1" Margin="12,0">
               <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Grid Margin="8,5" ColumnDefinitions="80,*,80,80,220">
+                  <Grid Margin="8,5" ColumnDefinitions="70,*,65,95,95,210">
                     <CheckBox IsChecked="{Binding Selected}"/>
                     <TextBlock Grid.Column="1" Text="{Binding SourceName}" TextTrimming="CharacterEllipsis"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="2" Text="{Binding Index}" VerticalAlignment="Center"/>
-                    <local:NumberStepper Grid.Column="3" Value="{Binding Episode, Mode=TwoWay}"
+                    <local:NumberStepper Grid.Column="3" Value="{Binding Season, Mode=TwoWay}"
+                                         Minimum="0" Maximum="999" MinHeight="30"/>
+                    <local:NumberStepper Grid.Column="4" Value="{Binding Episode, Mode=TwoWay}"
                                          Minimum="0" Maximum="9999" MinHeight="30"/>
-                    <TextBlock Grid.Column="4" Text="{Binding OutputName}" TextTrimming="CharacterEllipsis"
+                    <TextBlock Grid.Column="5" Text="{Binding OutputName}" TextTrimming="CharacterEllipsis"
                                VerticalAlignment="Center"/>
                   </Grid>
                 </DataTemplate>

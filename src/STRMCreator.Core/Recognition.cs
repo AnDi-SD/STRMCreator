@@ -7,7 +7,8 @@ namespace STRMCreator.Core;
 public static partial class Recognition
 {
     private static readonly Regex[] EpisodePatterns =
-        [SeasonEpisodeRegex(), XPatternRegex(), EpisodeWordRegex(), RussianEpisodeRegex(), TransliterationEpisodeRegex()];
+        [SeasonEpisodeRegex(), XPatternRegex(), EpisodeWordRegex(), ShortEpisodeRegex(),
+            RussianEpisodeRegex(), TransliterationEpisodeRegex()];
 
     public static string SuggestTitle(string torrentName)
     {
@@ -24,22 +25,26 @@ public static partial class Recognition
         TorrentMetadata torrent, int defaultSeason = 1, int firstEpisode = 1)
     {
         var result = new List<EpisodeCandidate>();
-        var fallback = firstEpisode;
+        var fallbackBySeason = new Dictionary<int, int>();
         foreach (var file in torrent.Files.Where(x => x.IsVideo()))
         {
             var season = defaultSeason;
             int? episode = null;
+            var seasonMatch = SeasonOnlyRegex().Match(file.Path);
+            if (seasonMatch.Success)
+                season = int.Parse(seasonMatch.Groups["season"].Value, CultureInfo.InvariantCulture);
             foreach (var regex in EpisodePatterns)
             {
-                var match = regex.Match(file.Name);
+                var match = regex.Match(file.Path);
                 if (!match.Success) continue;
                 if (match.Groups["season"].Success)
                     season = int.Parse(match.Groups["season"].Value, CultureInfo.InvariantCulture);
                 episode = int.Parse(match.Groups["episode"].Value, CultureInfo.InvariantCulture);
                 break;
             }
+            var fallback = fallbackBySeason.GetValueOrDefault(season, firstEpisode);
             result.Add(new EpisodeCandidate(file, season, episode ?? fallback));
-            fallback = Math.Max(fallback + 1, (episode ?? fallback) + 1);
+            fallbackBySeason[season] = Math.Max(fallback + 1, (episode ?? fallback) + 1);
         }
         return result;
     }
@@ -81,6 +86,8 @@ public static partial class Recognition
     private static partial Regex XPatternRegex();
     [GeneratedRegex(@"(?i)(?:episode|ep)[\s._-]*(?<episode>\d{1,3})")]
     private static partial Regex EpisodeWordRegex();
+    [GeneratedRegex(@"(?i)(?:^|[/\\\s._-])e(?<episode>\d{1,3})(?:[/\\\s._-]|$)")]
+    private static partial Regex ShortEpisodeRegex();
     [GeneratedRegex(@"(?i)(?<episode>\d{1,3})[\s._-]*(?:серия|серии|сер)")]
     private static partial Regex RussianEpisodeRegex();
     [GeneratedRegex(@"(?i)\(?(?<episode>\d{1,3})[\s._-]*serija")]
@@ -89,8 +96,10 @@ public static partial class Recognition
     private static partial Regex BracketNoiseRegex();
     [GeneratedRegex(@"(?i)\b\d+\s*(?:из|of)\s*\d+\b")]
     private static partial Regex CountRegex();
-    [GeneratedRegex(@"(?i)\b(?:season|сезон|s)\s*\d{1,2}\b")]
+    [GeneratedRegex(@"(?i)\b(?:season|сезон|s)\s*\d{1,3}(?:\s*[-–]\s*\d{1,3})?\b")]
     private static partial Regex SeasonRegex();
+    [GeneratedRegex(@"(?i)(?:^|[/\\\s._-])(?:season|сезон|s)[\s._-]*(?<season>\d{1,3})(?:[/\\\s._-]|$)")]
+    private static partial Regex SeasonOnlyRegex();
     [GeneratedRegex(@"\((?:19|20)\d{2}\).*|(?:19|20)\d{2}.*")]
     private static partial Regex YearAndAfterRegex();
     [GeneratedRegex(@"(?i)\b(?:web-?dl|bluray|bdrip|dvdrip|webrip|hdtv|xvid|x26[45]|hevc|avc|1080p|720p|2160p)\b.*")]

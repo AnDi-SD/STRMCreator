@@ -11,9 +11,11 @@ namespace STRMCreator.App;
 
 public partial class MainWindow : Window
 {
-    private readonly LibraryDatabase _database;
+    private LibraryDatabase _database;
+    private readonly BootstrapConfigStore _bootstrap = new();
     private readonly StreamSynchronizer _synchronizer = new();
     private readonly TorrentParser _torrentParser = new();
+    private readonly MagnetMetadataService _magnetMetadata = new();
     private readonly ObservableCollection<EpisodeRow> _episodes = [];
     private readonly ObservableCollection<LibraryRow> _library = [];
     private TorrentMetadata? _torrent;
@@ -24,9 +26,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        var dataDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "STRMCreator");
-        _database = new LibraryDatabase(Path.Combine(dataDirectory, "library.db"));
+        _database = new LibraryDatabase(_bootstrap.DefaultDatabasePath);
         EpisodeList.ItemsSource = _episodes;
         LibraryList.ItemsSource = _library;
         Opened += async (_, _) => await InitializeAsync();
@@ -36,7 +36,10 @@ public partial class MainWindow : Window
     {
         try
         {
+            var bootstrap = await _bootstrap.LoadAsync();
+            _database = new LibraryDatabase(bootstrap.DatabasePath);
             await _database.InitializeAsync();
+            DatabasePathBox.Text = _database.DatabasePath;
             _settings = await _database.GetSettingsAsync();
             ServerUrlBox.Text = _settings.ServerUrl;
             MoviesPathBox.Text = _settings.MoviesPath;
@@ -60,6 +63,28 @@ public partial class MainWindow : Window
         var path = files.FirstOrDefault()?.TryGetLocalPath();
         if (path is null) return;
         await LoadTorrentAsync(path);
+    }
+
+    private async void OpenMagnet_Click(object? sender, RoutedEventArgs e)
+    {
+        var magnet = await new MagnetDialog().ShowDialog<string?>(this);
+        if (string.IsNullOrWhiteSpace(magnet)) return;
+        try
+        {
+            SetStatus("Получение metadata по magnet-ссылке. Это может занять несколько минут.");
+            var directory = Path.Combine(Path.GetDirectoryName(_database.DatabasePath)!, "Torrents");
+            using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+            var path = await _magnetMetadata.DownloadAsync(magnet, directory, timeout.Token);
+            await LoadTorrentAsync(path);
+        }
+        catch (OperationCanceledException)
+        {
+            SetStatus("Получение magnet metadata отменено по тайм-ауту.", true);
+        }
+        catch (Exception exception)
+        {
+            SetStatus($"Не удалось получить magnet metadata: {exception.Message}", true);
+        }
     }
 
     private async Task LoadTorrentAsync(string path)
@@ -96,8 +121,8 @@ public partial class MainWindow : Window
         var candidates = Recognition.DetectEpisodes(_torrent, season, first);
         _episodes.Clear();
         foreach (var candidate in candidates)
-            _episodes.Add(new EpisodeRow(candidate.Source, candidate.EpisodeNumber,
-                () => CurrentTitle(), () => SeasonBox.Value));
+            _episodes.Add(new EpisodeRow(candidate.Source, candidate.SeasonNumber,
+                candidate.EpisodeNumber, () => CurrentTitle()));
         EpisodeList.IsVisible = _episodes.Count > 0;
     }
 
@@ -123,16 +148,32 @@ public partial class MainWindow : Window
             if (kind == MediaKind.Series)
                 seriesId = await _database.GetOrCreateSeriesAsync(title, _torrent.Name);
 
-            var itemId = await _database.UpsertLibraryItemAsync(kind, seriesId, title, _torrentPath,
-                _torrent.InfoHash, season, outputDirectory);
-            var previous = await _database.GetStreamsAsync(itemId);
-            var streams = BuildStreams(itemId, kind, title, outputDirectory);
-            var plan = await _synchronizer.PlanAsync(root, streams, previous);
-            await _synchronizer.ApplyAsync(root, plan);
-            await _database.ReplaceStreamsAsync(itemId, streams);
+            var created = 0;
+            var updated = 0;
+            var deleted = 0;
+            var unchanged = 0;
+            var groups = kind == MediaKind.Movie
+                ? new[] { _episodes.AsEnumerable() }
+                : _episodes.Where(x => x.Selected).GroupBy(x => x.Season).Select(x => x.AsEnumerable());
+            foreach (var group in groups)
+            {
+                var rows = group.ToArray();
+                var groupSeason = kind == MediaKind.Series ? rows.First().Season : season;
+                var itemId = await _database.UpsertLibraryItemAsync(kind, seriesId, title, _torrentPath,
+                    _torrent.InfoHash, groupSeason, outputDirectory);
+                var previous = await _database.GetStreamsAsync(itemId);
+                var streams = BuildStreams(itemId, kind, title, outputDirectory, rows);
+                var plan = await _synchronizer.PlanAsync(root, streams, previous);
+                await _synchronizer.ApplyAsync(root, plan);
+                await _database.ReplaceStreamsAsync(itemId, streams);
+                created += plan.Create.Count;
+                updated += plan.Update.Count;
+                deleted += plan.Delete.Count;
+                unchanged += plan.Unchanged.Count;
+            }
             await RefreshLibraryAsync();
-            SetStatus($"Готово: создано {plan.Create.Count}, обновлено {plan.Update.Count}, " +
-                      $"удалено {plan.Delete.Count}, без изменений {plan.Unchanged.Count}.");
+            SetStatus($"Готово: создано {created}, обновлено {updated}, " +
+                      $"удалено {deleted}, без изменений {unchanged}.");
         }
         catch (Exception exception)
         {
@@ -140,7 +181,8 @@ public partial class MainWindow : Window
         }
     }
 
-    private IReadOnlyList<ManagedStream> BuildStreams(long itemId, MediaKind kind, string title, string directory)
+    private IReadOnlyList<ManagedStream> BuildStreams(long itemId, MediaKind kind, string title,
+        string directory, IReadOnlyList<EpisodeRow>? rows = null)
     {
         if (_torrent is null) return [];
         if (kind == MediaKind.Movie)
@@ -151,7 +193,7 @@ public partial class MainWindow : Window
                 $"{directory}/{OutputPath.SanitizeSegment(title)}.strm",
                 StreamUrlBuilder.Build(_settings.ServerUrl, _torrent.InfoHash, video))];
         }
-        return _episodes.Where(x => x.Selected).Select(x =>
+        return (rows ?? _episodes).Where(x => x.Selected).Select(x =>
             new ManagedStream(0, itemId, x.Source.Index, x.Source.Path,
                 $"{directory}/{OutputPath.SanitizeSegment(x.OutputName)}",
                 StreamUrlBuilder.Build(_settings.ServerUrl, _torrent.InfoHash, x.Source))).ToArray();
@@ -182,6 +224,82 @@ public partial class MainWindow : Window
         }
         await _database.SaveSettingsAsync(settings);
         _settings = settings;
+    }
+
+    private async void SelectDatabase_Click(object? sender, RoutedEventArgs e)
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Выберите существующую базу",
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType("SQLite database") { Patterns = ["*.db"] }]
+        });
+        var path = files.FirstOrDefault()?.TryGetLocalPath();
+        if (path is null) return;
+        await SwitchDatabaseAsync(path);
+    }
+
+    private async void CreateDatabase_Click(object? sender, RoutedEventArgs e)
+    {
+        var path = await PickDatabaseSavePathAsync("Создать новую базу");
+        if (path is not null)
+            await SwitchDatabaseAsync(path);
+    }
+
+    private async void MoveDatabase_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var path = await PickDatabaseSavePathAsync("Перенести текущую базу");
+            if (path is null) return;
+            await _database.BackupAsync(path);
+            await SwitchDatabaseAsync(path);
+            SetStatus("База перенесена, новый файл выбран как активный.");
+        }
+        catch (Exception exception) { SetStatus(exception.Message, true); }
+    }
+
+    private async void BackupDatabase_Click(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var path = await PickDatabaseSavePathAsync("Резервная копия базы");
+            if (path is null) return;
+            await _database.BackupAsync(path);
+            SetStatus($"Резервная копия создана: {path}");
+        }
+        catch (Exception exception) { SetStatus(exception.Message, true); }
+    }
+
+    private async Task<string?> PickDatabaseSavePathAsync(string title)
+    {
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = title,
+            SuggestedFileName = "library.db",
+            DefaultExtension = "db",
+            FileTypeChoices = [new FilePickerFileType("SQLite database") { Patterns = ["*.db"] }]
+        });
+        return file?.TryGetLocalPath();
+    }
+
+    private async Task SwitchDatabaseAsync(string path)
+    {
+        try
+        {
+            var database = new LibraryDatabase(path);
+            await database.InitializeAsync();
+            _database = database;
+            await _bootstrap.SaveAsync(database.DatabasePath);
+            DatabasePathBox.Text = database.DatabasePath;
+            _settings = await database.GetSettingsAsync();
+            ServerUrlBox.Text = _settings.ServerUrl;
+            MoviesPathBox.Text = _settings.MoviesPath;
+            SeriesPathBox.Text = _settings.SeriesPath;
+            await RefreshLibraryAsync();
+            SetStatus("База данных подключена.");
+        }
+        catch (Exception exception) { SetStatus($"Не удалось открыть базу: {exception.Message}", true); }
     }
 
     private async void BrowseMovies_Click(object? sender, RoutedEventArgs e) =>
@@ -288,18 +406,19 @@ public partial class MainWindow : Window
 
     private sealed class EpisodeRow : INotifyPropertyChanged
     {
+        private int _season;
         private int _episode;
         private bool _selected = true;
         private readonly Func<string> _title;
-        private readonly Func<int> _season;
-        public EpisodeRow(TorrentFile source, int episode, Func<string> title, Func<int> season) =>
-            (Source, _episode, _title, _season) = (source, episode, title, season);
+        public EpisodeRow(TorrentFile source, int season, int episode, Func<string> title) =>
+            (Source, _season, _episode, _title) = (source, season, episode, title);
         public TorrentFile Source { get; }
         public string SourceName => Source.Name;
         public int Index => Source.Index;
+        public int Season { get => _season; set { _season = value; Notify(); Notify(nameof(OutputName)); } }
         public int Episode { get => _episode; set { _episode = value; Notify(); Notify(nameof(OutputName)); } }
         public bool Selected { get => _selected; set { _selected = value; Notify(); } }
-        public string OutputName => $"{OutputPath.SanitizeSegment(_title())} s{_season():00}e{Episode:00}.strm";
+        public string OutputName => $"{OutputPath.SanitizeSegment(_title())} s{Season:00}e{Episode:00}.strm";
         public event PropertyChangedEventHandler? PropertyChanged;
         public void NotifyOutputChanged() => Notify(nameof(OutputName));
         private void Notify([CallerMemberName] string? name = null) =>
