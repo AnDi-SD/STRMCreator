@@ -71,6 +71,9 @@ dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
 Для публикации под другую платформу замените `win-x64` на подходящий
 идентификатор среды выполнения .NET.
 
+Готовые пакеты для Windows, macOS и Debian доступны на странице
+[Releases](https://github.com/AnDi-SD/STRMCreator/releases).
+
 ## Хранение данных
 
 По умолчанию база данных хранится в каталоге локальных данных текущего

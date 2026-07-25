@@ -65,6 +65,9 @@ dotnet publish src/STRMCreator.App/STRMCreator.App.csproj \
 Replace `win-x64` with another supported .NET runtime identifier to publish for a
 different platform.
 
+Prebuilt Windows, macOS, and Debian packages are available on the
+[Releases](https://github.com/AnDi-SD/STRMCreator/releases) page.
+
 ## Data storage
 
 The default database is stored in the current user's local application data

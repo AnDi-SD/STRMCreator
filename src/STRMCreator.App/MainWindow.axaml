@@ -5,6 +5,7 @@
         x:Class="STRMCreator.App.MainWindow"
         x:CompileBindings="False"
         Title="STRM Creator" Width="1180" Height="760"
+        Icon="/Assets/app-icon-512.png"
         MinWidth="900" MinHeight="620"
         Background="#F4F5F7">
   <Window.Styles>
