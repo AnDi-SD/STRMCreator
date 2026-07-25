@@ -1,0 +1,174 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:STRMCreator.App"
+        x:Class="STRMCreator.App.MainWindow"
+        x:CompileBindings="False"
+        Title="STRM Creator" Width="1180" Height="760"
+        MinWidth="900" MinHeight="620"
+        Background="#F4F5F7">
+  <Window.Styles>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Foreground" Value="#50545B"/>
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="MinHeight" Value="34"/>
+      <Setter Property="Padding" Value="14,6"/>
+    </Style>
+    <Style Selector="TextBox, ComboBox">
+      <Setter Property="MinHeight" Value="34"/>
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="White"/>
+      <Setter Property="BorderBrush" Value="#D9DCE1"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="6"/>
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+    <Border Background="#20242A" Padding="20,14">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <TextBlock Text="STRM Creator" Foreground="White" FontSize="20" FontWeight="SemiBold"/>
+          <TextBlock Text="Библиотека TorrServer для Infuse" Foreground="#B9BEC6" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button x:Name="SettingsToggle" Grid.Column="1" Content="Настройки"
+                Background="#F3F4F6" Foreground="#181B20"
+                BorderBrush="#FFFFFF" BorderThickness="1"
+                Click="SettingsToggle_Click"/>
+      </Grid>
+    </Border>
+
+    <Border x:Name="SettingsPanel" Grid.Row="1" Background="#E9EBEF" Padding="20,14"
+            BorderBrush="#D1D4D9" BorderThickness="0,0,0,1" IsVisible="False">
+      <Grid ColumnDefinitions="1.2*,1.5*,Auto,1.5*,Auto,Auto" ColumnSpacing="8">
+        <StackPanel>
+          <TextBlock Classes="label" Text="TorrServer"/>
+          <TextBox x:Name="ServerUrlBox" PlaceholderText="http://192.168.1.1:8090"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1">
+          <TextBlock Classes="label" Text="Каталог фильмов"/>
+          <TextBox x:Name="MoviesPathBox" PlaceholderText="Локальный или сетевой путь"/>
+        </StackPanel>
+        <Button Grid.Column="2" Content="Обзор" VerticalAlignment="Bottom" Click="BrowseMovies_Click"/>
+        <StackPanel Grid.Column="3">
+          <TextBlock Classes="label" Text="Каталог сериалов"/>
+          <TextBox x:Name="SeriesPathBox" PlaceholderText="Локальный или сетевой путь"/>
+        </StackPanel>
+        <Button Grid.Column="4" Content="Обзор" VerticalAlignment="Bottom" Click="BrowseSeries_Click"/>
+        <Button Grid.Column="5" Content="Сохранить и проверить" VerticalAlignment="Bottom"
+                Click="SaveSettings_Click"/>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="330,*" Margin="16" ColumnSpacing="14">
+      <Border Classes="panel">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <StackPanel Margin="16,14,16,10">
+            <TextBlock Classes="h1" Text="Медиатека"/>
+            <TextBlock x:Name="LibraryCountText" Classes="label" Text="0 источников"/>
+          </StackPanel>
+          <ListBox x:Name="LibraryList" Grid.Row="1" Margin="8,0"
+                   SelectionChanged="LibraryList_SelectionChanged">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid Margin="8,8" ColumnDefinitions="*,Auto">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding Detail}" Classes="label"/>
+                  </StackPanel>
+                  <TextBlock Grid.Column="1" Text="{Binding Status}" Classes="label" VerticalAlignment="Center"/>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <Border Grid.Row="2" BorderBrush="#E2E4E8" BorderThickness="0,1,0,0" Padding="12">
+            <Button Content="Синхронизировать всю медиатеку" HorizontalAlignment="Stretch"
+                    Click="SyncAll_Click"/>
+          </Border>
+        </Grid>
+      </Border>
+
+      <Border Grid.Column="1" Classes="panel">
+        <Grid RowDefinitions="Auto,Auto,*">
+          <Grid Margin="20,16" ColumnDefinitions="*,Auto">
+            <StackPanel>
+              <TextBlock Classes="h1" Text="Добавление источника"/>
+              <TextBlock x:Name="TorrentSummaryText" Classes="label"
+                         Text="Выберите torrent-файл, чтобы увидеть его содержимое"/>
+            </StackPanel>
+            <Button Grid.Column="1" Content="Открыть torrent" Click="OpenTorrent_Click"/>
+          </Grid>
+
+          <Border Grid.Row="1" Background="#F7F8FA" BorderBrush="#E2E4E8"
+                  BorderThickness="0,1" Padding="20,14">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,100,100"
+                  ColumnSpacing="14" RowSpacing="12">
+              <StackPanel Grid.ColumnSpan="4">
+                <TextBlock Classes="label" Text="Название"/>
+                <ComboBox x:Name="TitleBox" IsEditable="True" IsTextSearchEnabled="False"
+                          SelectionChanged="TitleBox_SelectionChanged"/>
+              </StackPanel>
+              <StackPanel Grid.Row="1">
+                <TextBlock Classes="label" Text="Категория"/>
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,6,0,0">
+                  <RadioButton x:Name="SeriesKindRadio" Content="Сериал" IsChecked="True"
+                               Click="MediaKind_Changed"/>
+                  <RadioButton x:Name="MovieKindRadio" Content="Фильм" Click="MediaKind_Changed"/>
+                </StackPanel>
+              </StackPanel>
+              <StackPanel Grid.Row="1" Grid.Column="2">
+                <TextBlock Classes="label" Text="Сезон"/>
+                <local:NumberStepper x:Name="SeasonBox" Minimum="0" Maximum="999" Value="1"
+                                     ValueChanged="Numbering_Changed"/>
+              </StackPanel>
+              <StackPanel Grid.Row="1" Grid.Column="3">
+                <TextBlock Classes="label" Text="Первая серия"/>
+                <local:NumberStepper x:Name="FirstEpisodeBox" Minimum="0" Maximum="9999" Value="1"
+                                     ValueChanged="Numbering_Changed"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <Grid Grid.Row="2" RowDefinitions="Auto,*,Auto">
+            <Grid Margin="20,14,20,8" ColumnDefinitions="80,*,80,80,220">
+              <TextBlock Text="Включить" Classes="label"/>
+              <TextBlock Grid.Column="1" Text="Исходный файл" Classes="label"/>
+              <TextBlock Grid.Column="2" Text="Индекс" Classes="label"/>
+              <TextBlock Grid.Column="3" Text="Серия" Classes="label"/>
+              <TextBlock Grid.Column="4" Text="Итоговый STRM" Classes="label"/>
+            </Grid>
+            <ListBox x:Name="EpisodeList" Grid.Row="1" Margin="12,0">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Grid Margin="8,5" ColumnDefinitions="80,*,80,80,220">
+                    <CheckBox IsChecked="{Binding Selected}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding SourceName}" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Index}" VerticalAlignment="Center"/>
+                    <local:NumberStepper Grid.Column="3" Value="{Binding Episode, Mode=TwoWay}"
+                                         Minimum="0" Maximum="9999" MinHeight="30"/>
+                    <TextBlock Grid.Column="4" Text="{Binding OutputName}" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <Border Grid.Row="2" BorderBrush="#E2E4E8" BorderThickness="0,1,0,0" Padding="20,12">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock x:Name="StatusText" Text="Готово" Classes="label" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Content="Добавить и синхронизировать"
+                        Click="ImportAndSync_Click"/>
+              </Grid>
+            </Border>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

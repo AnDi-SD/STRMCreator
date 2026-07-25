@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="STRMCreator.App.NumberStepper"
+             x:Name="Root"
+             MinHeight="40">
+  <Border BorderBrush="#C7CBD1" BorderThickness="1" CornerRadius="4"
+          Background="White" ClipToBounds="True">
+    <Grid ColumnDefinitions="*,*,*">
+      <Border Background="#E9ECF0" Cursor="Hand"
+              PointerPressed="Decrease_PointerPressed">
+        <TextBlock Text="-" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="20" FontWeight="SemiBold"/>
+      </Border>
+      <Border Grid.Column="1" BorderBrush="#D9DCE1" BorderThickness="1,0">
+        <TextBlock Text="{Binding Value, ElementName=Root}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="18" FontWeight="SemiBold"/>
+      </Border>
+      <Border Grid.Column="2" Background="#E9ECF0" Cursor="Hand"
+              PointerPressed="Increase_PointerPressed">
+        <TextBlock Text="+" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="20" FontWeight="SemiBold"/>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.idea/
+.dotnet-home/
+artifacts/
+AvaloniaUI/
+*.user
+*.db
+*.db-shm
+*.db-wal
