@@ -10,9 +10,9 @@ public sealed class BootstrapConfigStore
     private readonly string _legacyConfigPath;
     public string DefaultDatabasePath { get; }
 
-    public BootstrapConfigStore()
+    public BootstrapConfigStore(string? localData = null)
     {
-        var localData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        localData ??= Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var directory = Path.Combine(localData, "STRMshelf");
         var legacyDirectory = Path.Combine(localData, "STRMCreator");
         _configPath = Path.Combine(directory, "config.json");
@@ -36,7 +36,8 @@ public sealed class BootstrapConfigStore
             return await JsonSerializer.DeserializeAsync<BootstrapConfig>(stream)
                    ?? new BootstrapConfig(DefaultDatabasePath);
         }
-        catch (JsonException)
+        catch (Exception exception) when (
+            exception is JsonException or IOException or UnauthorizedAccessException)
         {
             return new BootstrapConfig(DefaultDatabasePath);
         }
@@ -52,7 +53,8 @@ public sealed class BootstrapConfigStore
             return JsonSerializer.Deserialize<BootstrapConfig>(File.ReadAllText(configPath))
                    ?? new BootstrapConfig(DefaultDatabasePath);
         }
-        catch (JsonException)
+        catch (Exception exception) when (
+            exception is JsonException or IOException or UnauthorizedAccessException)
         {
             return new BootstrapConfig(DefaultDatabasePath);
         }

@@ -10,6 +10,8 @@ public partial class App : Application
 {
     public override void Initialize()
     {
+        var bootstrap = new BootstrapConfigStore().Load();
+        LocalizationManager.SetLanguage(bootstrap.Language);
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -17,8 +19,6 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var bootstrap = new BootstrapConfigStore().Load();
-            LocalizationManager.SetLanguage(bootstrap.Language);
             desktop.MainWindow = new MainWindow();
         }
 

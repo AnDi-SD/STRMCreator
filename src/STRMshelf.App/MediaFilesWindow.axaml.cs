@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using STRMshelf.App.Localization;
 using STRMshelf.Core;
 using STRMshelf.Infrastructure;
 
@@ -77,7 +78,7 @@ public partial class MediaFilesWindow : Window
         var selected = _rows.Where(row => row.Selected).ToArray();
         if (_items[0].Kind == MediaKind.Movie && selected.Length != 1)
         {
-            StatusText.Text = "Exactly one video file must be selected for a movie.";
+            StatusText.Text = LocalizationManager.Get("MovieRequiresExactlyOneVideo");
             StatusText.Foreground = Avalonia.Media.Brushes.Red;
             return;
         }
@@ -85,7 +86,8 @@ public partial class MediaFilesWindow : Window
             .FirstOrDefault(group => group.Count() > 1);
         if (duplicate is not null)
         {
-            StatusText.Text = $"Season {duplicate.Key.Season}, episode {duplicate.Key.Episode} is assigned more than once.";
+            StatusText.Text = LocalizationManager.Format("DuplicateEpisodeAssignment",
+                duplicate.Key.Season, duplicate.Key.Episode);
             StatusText.Foreground = Avalonia.Media.Brushes.Red;
             return;
         }

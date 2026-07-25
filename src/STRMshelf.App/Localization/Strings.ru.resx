@@ -93,4 +93,80 @@
   <data name="SyncSettingsHint" xml:space="preserve"><value>Изменения адреса TorrServer и путей должны быть применены к существующим STRM-файлам.</value></data>
   <data name="SyncLaterWarning" xml:space="preserve"><value>Если выбрать «Позже», потребуется вручную запустить синхронизацию медиатеки.</value></data>
   <data name="SyncNow" xml:space="preserve"><value>Синхронизировать сейчас</value></data>
+  <data name="AllKnownTorrentSources" xml:space="preserve"><value>Все известные torrent-источники</value></data>
+  <data name="LinkedTvShow" xml:space="preserve"><value>Сериал: {0}</value></data>
+  <data name="LinkedMovie" xml:space="preserve"><value>Фильм: {0}</value></data>
+  <data name="VideoCount" xml:space="preserve"><value>видеофайлов: {0}</value></data>
+  <data name="SeasonsList" xml:space="preserve"><value>сезоны: {0}</value></data>
+  <data name="StoredInDatabase" xml:space="preserve"><value>Сохранён в базе данных</value></data>
+  <data name="SelectTorrentFile" xml:space="preserve"><value>Выберите torrent-файл</value></data>
+  <data name="RetrievingMagnetMetadata" xml:space="preserve"><value>Получение метаданных по magnet-ссылке...</value></data>
+  <data name="MetadataTimedOut" xml:space="preserve"><value>Время ожидания метаданных истекло.</value></data>
+  <data name="NoSupportedVideo" xml:space="preserve"><value>Источник не содержит поддерживаемых видеофайлов.</value></data>
+  <data name="MovieDetected" xml:space="preserve"><value>Обнаружен один видеофайл: выбран фильм. Проверьте категорию.</value></data>
+  <data name="SeriesDetected" xml:space="preserve"><value>Обнаружено несколько видеофайлов: выбран сериал. Проверьте нумерацию.</value></data>
+  <data name="CouldNotReadSource" xml:space="preserve"><value>Не удалось прочитать источник: {0}</value></data>
+  <data name="EnterTitle" xml:space="preserve"><value>Введите название.</value></data>
+  <data name="SelectVideo" xml:space="preserve"><value>Выберите хотя бы один видеофайл.</value></data>
+  <data name="MoviesFolder" xml:space="preserve"><value>Каталог фильмов</value></data>
+  <data name="SeriesFolder" xml:space="preserve"><value>Каталог сериалов</value></data>
+  <data name="SelectExistingDatabase" xml:space="preserve"><value>Выберите существующую базу данных</value></data>
+  <data name="DatabaseOpened" xml:space="preserve"><value>База открыта, её настройки загружены.</value></data>
+  <data name="CreateNewDatabase" xml:space="preserve"><value>Создать новую базу данных</value></data>
+  <data name="DatabaseCreatedOnSave" xml:space="preserve"><value>Новая база будет создана при сохранении настроек.</value></data>
+  <data name="MoveCurrentDatabase" xml:space="preserve"><value>Перенести текущую базу данных</value></data>
+  <data name="DatabaseMoved" xml:space="preserve"><value>База перенесена. Новый файл теперь активен.</value></data>
+  <data name="BackupDatabase" xml:space="preserve"><value>Создать резервную копию базы</value></data>
+  <data name="BackupCreated" xml:space="preserve"><value>Резервная копия создана: {0}</value></data>
+  <data name="CouldNotAddSource" xml:space="preserve"><value>Не удалось добавить источник: {0}</value></data>
+  <data name="SourceAdded" xml:space="preserve"><value>Источник добавлен: создано {0}, обновлено {1}.</value></data>
+  <data name="SelectLibraryFirst" xml:space="preserve"><value>Сначала выберите элемент медиатеки.</value></data>
+  <data name="SourceCount" xml:space="preserve"><value>Источников: {0}</value></data>
+  <data name="FilteredSourceCount" xml:space="preserve"><value>Показано {0} из {1}</value></data>
+  <data name="SettingsSavedAndSynced" xml:space="preserve"><value>Настройки сохранены. Медиатека синхронизирована: создано {0}, обновлено {1}.</value></data>
+  <data name="SettingsSavedSyncLater" xml:space="preserve"><value>Настройки сохранены. Синхронизацию медиатеки нужно запустить вручную.</value></data>
+  <data name="CouldNotSaveSettings" xml:space="preserve"><value>Не удалось сохранить настройки: {0}</value></data>
+  <data name="TorrentRelinked" xml:space="preserve"><value>Torrent перепривязан к «{0}».</value></data>
+  <data name="AssignmentSaved" xml:space="preserve"><value>Распределение сохранено: создано {0}, обновлено {1}, удалено {2}.</value></data>
+  <data name="TitleWithSourceCount" xml:space="preserve"><value>{0} (сезонов/источников: {1})</value></data>
+  <data name="DeletedFromLibraryStatus" xml:space="preserve"><value>Удалено из медиатеки: {0}.</value></data>
+  <data name="EpisodeDeletedStatus" xml:space="preserve"><value>Серия удалена: сезон {0:00}, серия {1:00}.</value></data>
+  <data name="PlaylistOpened" xml:space="preserve"><value>Плейлист открыт в проигрывателе по умолчанию.</value></data>
+  <data name="SeasonPlaylistOpened" xml:space="preserve"><value>Открыт плейлист, серий: {0}.</value></data>
+  <data name="TorrentSummary" xml:space="preserve"><value>{0} | файлов: {1} | видео: {2} | {3}</value></data>
+  <data name="EditSource" xml:space="preserve"><value>Редактирование источника</value></data>
+  <data name="SourceLoaded" xml:space="preserve"><value>Источник загружен. Измените данные и сохраните изменения.</value></data>
+  <data name="LibrarySynchronized" xml:space="preserve"><value>Медиатека синхронизирована: создано {0}, обновлено {1}.</value></data>
+  <data name="StrmFilesRestored" xml:space="preserve"><value>STRM-файлов восстановлено: {0}.</value></data>
+  <data name="CategoryChangeRestricted" xml:space="preserve"><value>Нельзя изменить категорию элемента с несколькими сезонами или источниками.</value></data>
+  <data name="ChangesSaved" xml:space="preserve"><value>Изменения сохранены: создано {0}, обновлено {1}, удалено {2}.</value></data>
+  <data name="SeriesFolderNotConfigured" xml:space="preserve"><value>Каталог сериалов не настроен.</value></data>
+  <data name="MoviesFolderNotConfigured" xml:space="preserve"><value>Каталог фильмов не настроен.</value></data>
+  <data name="SeasonEpisodeConflict" xml:space="preserve"><value>В сезоне {0} уже есть серия с таким номером.</value></data>
+  <data name="EpisodesMoved" xml:space="preserve"><value>Серии перенесены между сезонами: создано {0}, обновлено {1}, удалено {2}.</value></data>
+  <data name="TorrentNoSupportedVideo" xml:space="preserve"><value>Torrent не содержит поддерживаемых видеофайлов.</value></data>
+  <data name="InvalidServerAddress" xml:space="preserve"><value>Введите корректный абсолютный адрес TorrServer.</value></data>
+  <data name="CouldNotOpenSource" xml:space="preserve"><value>Не удалось открыть источник для редактирования: {0}</value></data>
+  <data name="CouldNotRelinkTorrent" xml:space="preserve"><value>Не удалось перепривязать torrent: {0}</value></data>
+  <data name="SelectedLinkMissing" xml:space="preserve"><value>Выбранная связь больше не существует.</value></data>
+  <data name="TorrentNoLongerLinked" xml:space="preserve"><value>Выбранный torrent больше не связан с элементом медиатеки.</value></data>
+  <data name="MovieRequiresOneVideo" xml:space="preserve"><value>К фильму можно привязать только torrent с одним выбранным видеофайлом.</value></data>
+  <data name="MultiSeasonCannotBeMovie" xml:space="preserve"><value>Источник с несколькими сезонами нельзя преобразовать в фильм.</value></data>
+  <data name="LibraryFoldersNotConfigured" xml:space="preserve"><value>Каталоги медиатеки не настроены.</value></data>
+  <data name="LibraryFolderNotConfigured" xml:space="preserve"><value>Каталог медиатеки не настроен.</value></data>
+  <data name="TargetEpisodeConflict" xml:space="preserve"><value>В целевом элементе уже есть серии с такими номерами.</value></data>
+  <data name="CouldNotApplyAssignment" xml:space="preserve"><value>Не удалось применить распределение: {0}</value></data>
+  <data name="CouldNotDeleteSource" xml:space="preserve"><value>Не удалось удалить источник: {0}</value></data>
+  <data name="EpisodeLinkMissing" xml:space="preserve"><value>Связь серии больше не существует.</value></data>
+  <data name="CouldNotDeleteEpisode" xml:space="preserve"><value>Не удалось удалить серию: {0}</value></data>
+  <data name="MediaLinkMissing" xml:space="preserve"><value>Связь медиафайла не найдена.</value></data>
+  <data name="CouldNotOpenPlayer" xml:space="preserve"><value>Не удалось открыть проигрыватель: {0}</value></data>
+  <data name="SeasonHasNoEpisodes" xml:space="preserve"><value>В выбранном сезоне нет привязанных серий.</value></data>
+  <data name="CouldNotOpenSeason" xml:space="preserve"><value>Не удалось открыть сезон: {0}</value></data>
+  <data name="MovieRequiresExactlyOneVideo" xml:space="preserve"><value>Для фильма нужно выбрать ровно один видеофайл.</value></data>
+  <data name="DuplicateEpisodeAssignment" xml:space="preserve"><value>Сезон {0}, серия {1} назначена более одного раза.</value></data>
+  <data name="SeasonPlaylistName" xml:space="preserve"><value>{0} - сезон {1}</value></data>
+  <data name="SeasonNumber" xml:space="preserve"><value>Сезон {0}</value></data>
+  <data name="EpisodeIdentity" xml:space="preserve"><value>{0} | сезон {1:00}, серия {2:00}</value></data>
+  <data name="MissingFilesCount" xml:space="preserve"><value>Отсутствует файлов: {0}. Восстановить их сейчас?</value></data>
 </root>

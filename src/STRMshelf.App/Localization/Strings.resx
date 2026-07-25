@@ -93,4 +93,80 @@
   <data name="SyncSettingsHint" xml:space="preserve"><value>Changes to the TorrServer address and folders must be applied to existing STRM files.</value></data>
   <data name="SyncLaterWarning" xml:space="preserve"><value>If you choose Later, you will need to start library synchronization manually.</value></data>
   <data name="SyncNow" xml:space="preserve"><value>Synchronize now</value></data>
+  <data name="AllKnownTorrentSources" xml:space="preserve"><value>All known torrent sources</value></data>
+  <data name="LinkedTvShow" xml:space="preserve"><value>TV show: {0}</value></data>
+  <data name="LinkedMovie" xml:space="preserve"><value>Movie: {0}</value></data>
+  <data name="VideoCount" xml:space="preserve"><value>{0} videos</value></data>
+  <data name="SeasonsList" xml:space="preserve"><value>seasons {0}</value></data>
+  <data name="StoredInDatabase" xml:space="preserve"><value>Stored in database</value></data>
+  <data name="SelectTorrentFile" xml:space="preserve"><value>Select a torrent file</value></data>
+  <data name="RetrievingMagnetMetadata" xml:space="preserve"><value>Retrieving metadata from the magnet link...</value></data>
+  <data name="MetadataTimedOut" xml:space="preserve"><value>Metadata retrieval timed out.</value></data>
+  <data name="NoSupportedVideo" xml:space="preserve"><value>The source contains no supported video files.</value></data>
+  <data name="MovieDetected" xml:space="preserve"><value>One video file detected: Movie selected. Check the category.</value></data>
+  <data name="SeriesDetected" xml:space="preserve"><value>Multiple video files detected: TV show selected. Check the numbering.</value></data>
+  <data name="CouldNotReadSource" xml:space="preserve"><value>Could not read the source: {0}</value></data>
+  <data name="EnterTitle" xml:space="preserve"><value>Enter a title.</value></data>
+  <data name="SelectVideo" xml:space="preserve"><value>Select at least one video file.</value></data>
+  <data name="MoviesFolder" xml:space="preserve"><value>Movies folder</value></data>
+  <data name="SeriesFolder" xml:space="preserve"><value>TV shows folder</value></data>
+  <data name="SelectExistingDatabase" xml:space="preserve"><value>Select an existing database</value></data>
+  <data name="DatabaseOpened" xml:space="preserve"><value>Database opened and its settings loaded.</value></data>
+  <data name="CreateNewDatabase" xml:space="preserve"><value>Create a new database</value></data>
+  <data name="DatabaseCreatedOnSave" xml:space="preserve"><value>The new database will be created when settings are saved.</value></data>
+  <data name="MoveCurrentDatabase" xml:space="preserve"><value>Move the current database</value></data>
+  <data name="DatabaseMoved" xml:space="preserve"><value>Database moved. The new file is now active.</value></data>
+  <data name="BackupDatabase" xml:space="preserve"><value>Back up the database</value></data>
+  <data name="BackupCreated" xml:space="preserve"><value>Backup created: {0}</value></data>
+  <data name="CouldNotAddSource" xml:space="preserve"><value>Could not add the source: {0}</value></data>
+  <data name="SourceAdded" xml:space="preserve"><value>Source added: {0} created, {1} updated.</value></data>
+  <data name="SelectLibraryFirst" xml:space="preserve"><value>Select a library item first.</value></data>
+  <data name="SourceCount" xml:space="preserve"><value>{0} sources</value></data>
+  <data name="FilteredSourceCount" xml:space="preserve"><value>{0} of {1} sources</value></data>
+  <data name="SettingsSavedAndSynced" xml:space="preserve"><value>Settings saved. Library synchronized: {0} created, {1} updated.</value></data>
+  <data name="SettingsSavedSyncLater" xml:space="preserve"><value>Settings saved. Library synchronization must be started manually.</value></data>
+  <data name="CouldNotSaveSettings" xml:space="preserve"><value>Could not save settings: {0}</value></data>
+  <data name="TorrentRelinked" xml:space="preserve"><value>Torrent relinked to "{0}".</value></data>
+  <data name="AssignmentSaved" xml:space="preserve"><value>Assignment saved: {0} created, {1} updated, {2} deleted.</value></data>
+  <data name="TitleWithSourceCount" xml:space="preserve"><value>{0} ({1} seasons/sources)</value></data>
+  <data name="DeletedFromLibraryStatus" xml:space="preserve"><value>Deleted from library: {0}.</value></data>
+  <data name="EpisodeDeletedStatus" xml:space="preserve"><value>Episode deleted: season {0:00}, episode {1:00}.</value></data>
+  <data name="PlaylistOpened" xml:space="preserve"><value>Playlist opened in the default media player.</value></data>
+  <data name="SeasonPlaylistOpened" xml:space="preserve"><value>Playlist opened with {0} episodes.</value></data>
+  <data name="TorrentSummary" xml:space="preserve"><value>{0} | {1} files | {2} videos | {3}</value></data>
+  <data name="EditSource" xml:space="preserve"><value>Edit source</value></data>
+  <data name="SourceLoaded" xml:space="preserve"><value>Source loaded. Edit the data and save your changes.</value></data>
+  <data name="LibrarySynchronized" xml:space="preserve"><value>Library synchronized: {0} created, {1} updated.</value></data>
+  <data name="StrmFilesRestored" xml:space="preserve"><value>STRM files restored: {0}.</value></data>
+  <data name="CategoryChangeRestricted" xml:space="preserve"><value>The category cannot be changed for an item with multiple seasons or sources.</value></data>
+  <data name="ChangesSaved" xml:space="preserve"><value>Changes saved: {0} created, {1} updated, {2} deleted.</value></data>
+  <data name="SeriesFolderNotConfigured" xml:space="preserve"><value>The TV shows folder is not configured.</value></data>
+  <data name="MoviesFolderNotConfigured" xml:space="preserve"><value>The movies folder is not configured.</value></data>
+  <data name="SeasonEpisodeConflict" xml:space="preserve"><value>Season {0} already contains an episode with this number.</value></data>
+  <data name="EpisodesMoved" xml:space="preserve"><value>Episodes moved between seasons: {0} created, {1} updated, {2} deleted.</value></data>
+  <data name="TorrentNoSupportedVideo" xml:space="preserve"><value>The torrent contains no supported video files.</value></data>
+  <data name="InvalidServerAddress" xml:space="preserve"><value>Enter a valid absolute TorrServer address.</value></data>
+  <data name="CouldNotOpenSource" xml:space="preserve"><value>Could not open the source for editing: {0}</value></data>
+  <data name="CouldNotRelinkTorrent" xml:space="preserve"><value>Could not relink the torrent: {0}</value></data>
+  <data name="SelectedLinkMissing" xml:space="preserve"><value>The selected link no longer exists.</value></data>
+  <data name="TorrentNoLongerLinked" xml:space="preserve"><value>The selected torrent is no longer linked to a library item.</value></data>
+  <data name="MovieRequiresOneVideo" xml:space="preserve"><value>Only a torrent with one selected video file can be linked to a movie.</value></data>
+  <data name="MultiSeasonCannotBeMovie" xml:space="preserve"><value>A source containing multiple seasons cannot be converted to a movie.</value></data>
+  <data name="LibraryFoldersNotConfigured" xml:space="preserve"><value>Library folders are not configured.</value></data>
+  <data name="LibraryFolderNotConfigured" xml:space="preserve"><value>The library folder is not configured.</value></data>
+  <data name="TargetEpisodeConflict" xml:space="preserve"><value>The target item already contains episodes with these numbers.</value></data>
+  <data name="CouldNotApplyAssignment" xml:space="preserve"><value>Could not apply the assignment: {0}</value></data>
+  <data name="CouldNotDeleteSource" xml:space="preserve"><value>Could not delete the source: {0}</value></data>
+  <data name="EpisodeLinkMissing" xml:space="preserve"><value>The episode link no longer exists.</value></data>
+  <data name="CouldNotDeleteEpisode" xml:space="preserve"><value>Could not delete the episode: {0}</value></data>
+  <data name="MediaLinkMissing" xml:space="preserve"><value>Media file link not found.</value></data>
+  <data name="CouldNotOpenPlayer" xml:space="preserve"><value>Could not open the media player: {0}</value></data>
+  <data name="SeasonHasNoEpisodes" xml:space="preserve"><value>The selected season contains no linked episodes.</value></data>
+  <data name="CouldNotOpenSeason" xml:space="preserve"><value>Could not open the season: {0}</value></data>
+  <data name="MovieRequiresExactlyOneVideo" xml:space="preserve"><value>Exactly one video file must be selected for a movie.</value></data>
+  <data name="DuplicateEpisodeAssignment" xml:space="preserve"><value>Season {0}, episode {1} is assigned more than once.</value></data>
+  <data name="SeasonPlaylistName" xml:space="preserve"><value>{0} - season {1}</value></data>
+  <data name="SeasonNumber" xml:space="preserve"><value>Season {0}</value></data>
+  <data name="EpisodeIdentity" xml:space="preserve"><value>{0} | season {1:00}, episode {2:00}</value></data>
+  <data name="MissingFilesCount" xml:space="preserve"><value>{0} files are missing. Restore them now?</value></data>
 </root>

@@ -59,6 +59,58 @@ public sealed class LibraryDatabaseTests
     }
 
     [Fact]
+    public async Task UpsertMovie_ReusesItemWhenSeasonIsNull()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"strmshelf-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var database = new LibraryDatabase(Path.Combine(directory, "library.db"));
+            await database.InitializeAsync();
+
+            var first = await database.UpsertLibraryItemAsync(MediaKind.Movie, null, "First title",
+                "source.torrent", "HASH", null, "First title");
+            var second = await database.UpsertLibraryItemAsync(MediaKind.Movie, null, "Updated title",
+                "embedded:HASH", "HASH", null, "Updated title");
+
+            Assert.Equal(first, second);
+            var item = Assert.Single(await database.GetLibraryAsync());
+            Assert.Equal("Updated title", item.Title);
+            Assert.Equal("embedded:HASH", item.Source);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task UpsertSeries_PreservesAndReusesSpecialsSeasonZero()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"strmshelf-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var database = new LibraryDatabase(Path.Combine(directory, "library.db"));
+            await database.InitializeAsync();
+
+            var first = await database.UpsertLibraryItemAsync(MediaKind.Series, null, "Show",
+                "source.torrent", "HASH", SeasonNumbers.Specials, "Show");
+            var second = await database.UpsertLibraryItemAsync(MediaKind.Series, null, "Show",
+                "embedded:HASH", "HASH", SeasonNumbers.Specials, "Show");
+
+            Assert.Equal(first, second);
+            var item = Assert.Single(await database.GetLibraryAsync());
+            Assert.Equal(SeasonNumbers.Specials, item.SeasonNumber);
+            Assert.Equal("embedded:HASH", item.Source);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task DeleteLibraryItem_RemovesItemAndItsManagedStreams()
     {
         var directory = Path.Combine(Path.GetTempPath(), $"strmshelf-tests-{Guid.NewGuid():N}");

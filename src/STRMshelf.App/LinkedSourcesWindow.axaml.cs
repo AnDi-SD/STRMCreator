@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using STRMshelf.App.Localization;
 using STRMshelf.Core;
 using STRMshelf.Infrastructure;
 
@@ -31,7 +32,7 @@ public partial class LinkedSourcesWindow : Window
 
     public LinkedSourcesWindow(LibraryDatabase database) : this()
     {
-        _heading = "All known torrent sources";
+        _heading = LocalizationManager.Get("AllKnownTorrentSources");
         _database = database;
         Opened += async (_, _) =>
         {
@@ -52,12 +53,17 @@ public partial class LinkedSourcesWindow : Window
                 await _database!.GetTorrentDataAsync(item.InfoHash));
             var seasons = group.Where(value => value.SeasonNumber.HasValue)
                 .Select(value => value.SeasonNumber!.Value).Distinct().Order().ToArray();
-            var binding = item.Kind == MediaKind.Series ? $"TV show: {item.Title}" : $"Movie: {item.Title}";
+            var binding = LocalizationManager.Format(
+                item.Kind == MediaKind.Series ? "LinkedTvShow" : "LinkedMovie", item.Title);
+            var videoCount = LocalizationManager.Format("VideoCount",
+                metadata.Files.Count(file => file.IsVideo()));
             rows.Add(new SourceRow(metadata.Name, item.Title, item.InfoHash,
                 group.Select(value => value.Id).ToArray(),
-                $"{binding} | {metadata.Files.Count(file => file.IsVideo())} videos" +
-                (seasons.Length > 0 ? $" | seasons {string.Join(", ", seasons)}" : ""),
-                "Stored in database"));
+                $"{binding} | {videoCount}" +
+                (seasons.Length > 0
+                    ? $" | {LocalizationManager.Format("SeasonsList", string.Join(", ", seasons))}"
+                    : ""),
+                LocalizationManager.Get("StoredInDatabase")));
         }
         _allRows = rows.OrderBy(row => row.Name).ToArray();
         ApplyFilter();

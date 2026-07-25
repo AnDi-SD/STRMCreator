@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using STRMshelf.App.Localization;
 using STRMshelf.Core;
 using STRMshelf.Infrastructure;
 
@@ -42,7 +43,7 @@ public partial class AddSourceWindow : Window
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Select a torrent file",
+            Title = LocalizationManager.Get("SelectTorrentFile"),
             AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType("Torrent") { Patterns = ["*.torrent"] }]
         });
@@ -57,13 +58,16 @@ public partial class AddSourceWindow : Window
         if (string.IsNullOrWhiteSpace(magnet)) return;
         try
         {
-            SetStatus("Retrieving metadata from the magnet link...");
+            SetStatus(LocalizationManager.Get("RetrievingMagnetMetadata"));
             var directory = Path.Combine(Path.GetTempPath(), "STRMshelf", "metadata-cache");
             using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
             var data = await _magnetMetadata.DownloadDataAsync(magnet, directory, timeout.Token);
             await LoadTorrentAsync(data, "Magnet", magnet);
         }
-        catch (OperationCanceledException) { SetStatus("Metadata retrieval timed out.", true); }
+        catch (OperationCanceledException)
+        {
+            SetStatus(LocalizationManager.Get("MetadataTimedOut"), true);
+        }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }
 
@@ -76,7 +80,7 @@ public partial class AddSourceWindow : Window
             _torrentData = data;
             _magnetUri = magnetUri;
             if (!_torrent.Files.Any(file => file.IsVideo()))
-                throw new InvalidOperationException("The source contains no supported video files.");
+                throw new InvalidOperationException(LocalizationManager.Get("NoSupportedVideo"));
             var kind = Recognition.DetectMediaKind(_torrent);
             SeriesKindRadio.IsChecked = kind == MediaKind.Series;
             MovieKindRadio.IsChecked = kind == MediaKind.Movie;
@@ -84,18 +88,21 @@ public partial class AddSourceWindow : Window
             await LoadTitleSuggestionsAsync(kind);
             RebuildFiles();
             SourceSummaryText.Text =
-                $"{sourceName} | {_torrent.Files.Count(x => x.IsVideo())} videos | {_torrent.InfoHash}";
+                $"{sourceName} | {LocalizationManager.Format("VideoCount", _torrent.Files.Count(x => x.IsVideo()))} | {_torrent.InfoHash}";
             EmptySourcePanel.IsVisible = false;
             MetadataPanel.IsVisible = true;
             FileHeaderPanel.IsVisible = true;
             FileList.IsVisible = true;
             ActionPanel.IsVisible = true;
             AddButton.IsEnabled = true;
-            SetStatus(kind == MediaKind.Movie
-                ? "One video file detected: Movie selected. Check the category."
-                : "Multiple video files detected: TV show selected. Check the numbering.");
+            SetStatus(LocalizationManager.Get(kind == MediaKind.Movie
+                ? "MovieDetected"
+                : "SeriesDetected"));
         }
-        catch (Exception exception) { SetStatus($"Could not read the source: {exception.Message}", true); }
+        catch (Exception exception)
+        {
+            SetStatus(LocalizationManager.Format("CouldNotReadSource", exception.Message), true);
+        }
         finally { _updating = false; }
     }
 
@@ -147,14 +154,14 @@ public partial class AddSourceWindow : Window
         var title = TitleBox.Text?.Trim();
         if (string.IsNullOrWhiteSpace(title))
         {
-            SetStatus("Enter a title.", true);
+            SetStatus(LocalizationManager.Get("EnterTitle"), true);
             return;
         }
         var selected = _files.Where(row => row.Selected)
             .Select(row => new AddSourceFile(row.Source, row.Season, row.Episode, true)).ToArray();
         if (selected.Length == 0)
         {
-            SetStatus("Select at least one video file.", true);
+            SetStatus(LocalizationManager.Get("SelectVideo"), true);
             return;
         }
         Close(new AddSourceResult(_torrentData, _magnetUri, _torrent, CurrentKind(), title, selected));

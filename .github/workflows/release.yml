@@ -82,9 +82,9 @@ jobs:
             <key>CFBundleIdentifier</key>
             <string>io.github.andi-sd.strmshelf</string>
             <key>CFBundleVersion</key>
-            <string>1.0.1</string>
+            <string>1.0.2</string>
             <key>CFBundleShortVersionString</key>
-            <string>1.0.1</string>
+            <string>1.0.2</string>
             <key>CFBundleExecutable</key>
             <string>STRMshelf.App</string>
             <key>CFBundleIconFile</key>
@@ -132,7 +132,7 @@ jobs:
             "$ROOT/usr/share/icons/hicolor/512x512/apps/strmshelf.png"
           cat > "$ROOT/DEBIAN/control" <<'CONTROL'
           Package: strmshelf
-          Version: 1.0.1
+          Version: 1.0.2
           Section: video
           Priority: optional
           Architecture: amd64
@@ -173,9 +173,17 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: STRMshelf 1.0.1
+          name: STRMshelf 1.0.2
           generate_release_notes: true
           body: |
+            ## Исправления в 1.0.2
+
+            - Исправлено переключение языка во всех окнах и динамических сообщениях.
+            - Исправлено повторное добавление и обновление фильмов в базе данных.
+            - Повреждённый файл начальной конфигурации больше не мешает запуску.
+            - Исправлена Debug-сборка после обновления Avalonia.
+            - Сезон 0 закреплён как поддерживаемый сезон специальных выпусков.
+
             ## Downloads
 
             - **Windows x64:** standalone EXE; .NET installation is not required.

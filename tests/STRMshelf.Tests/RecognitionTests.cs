@@ -23,6 +23,7 @@ public sealed class RecognitionTests
 
     [Theory]
     [InlineData("Show.S03E07.1080p.mkv", 3, 7)]
+    [InlineData("Show.S00E01.Special.mkv", SeasonNumbers.Specials, 1)]
     [InlineData("Show.2x11.mkv", 2, 11)]
     [InlineData("Show Episode 9.mkv", 1, 9)]
     public void DetectEpisodes_RecognizesCommonPatterns(string fileName, int season, int episode)
@@ -31,6 +32,17 @@ public sealed class RecognitionTests
         var result = Assert.Single(Recognition.DetectEpisodes(torrent));
         Assert.Equal(season, result.SeasonNumber);
         Assert.Equal(episode, result.EpisodeNumber);
+    }
+
+    [Fact]
+    public void EpisodeCandidate_UsesSeasonZeroForSpecialsOutputName()
+    {
+        var candidate = new EpisodeCandidate(
+            new TorrentFile(1, "Show.Special.mkv", 100),
+            SeasonNumbers.Specials,
+            1);
+
+        Assert.Equal("Show s00e01.strm", candidate.OutputName("Show"));
     }
 
     [Fact]

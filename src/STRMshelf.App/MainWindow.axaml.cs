@@ -95,7 +95,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not add the source: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotAddSource", exception.Message), true);
         }
     }
 
@@ -105,9 +105,10 @@ public partial class MainWindow : Window
         await _database.StoreTorrentAsync(result.Torrent.InfoHash, result.TorrentData, result.MagnetUri);
         var root = result.Kind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
         if (string.IsNullOrWhiteSpace(root))
-            throw new InvalidOperationException(result.Kind == MediaKind.Series
-                ? "The TV shows folder is not configured."
-                : "The movies folder is not configured.");
+            throw new InvalidOperationException(LocalizationManager.Get(
+                result.Kind == MediaKind.Series
+                    ? "SeriesFolderNotConfigured"
+                    : "MoviesFolderNotConfigured"));
         var outputDirectory = OutputPath.SanitizeSegment(result.Title);
         long? seriesId = result.Kind == MediaKind.Series
             ? await _database.GetOrCreateSeriesAsync(result.Title, result.Torrent.Name)
@@ -143,14 +144,14 @@ public partial class MainWindow : Window
 
         await RefreshLibraryAsync();
         ResetEditor();
-        SetStatus($"Source added: {created} created, {updated} updated.");
+        SetStatus(LocalizationManager.Format("SourceAdded", created, updated));
     }
 
     private async void ImportAndSync_Click(object? sender, RoutedEventArgs e)
     {
         if (_torrent is null || _torrentPath is null || _editingItem is null)
         {
-            SetStatus("Select a library item first.", true);
+            SetStatus(LocalizationManager.Get("SelectLibraryFirst"), true);
             return;
         }
 
@@ -160,7 +161,7 @@ public partial class MainWindow : Window
             var kind = MovieKindRadio.IsChecked == true ? MediaKind.Movie : MediaKind.Series;
             var title = CurrentTitle();
             if (string.IsNullOrWhiteSpace(title))
-                throw new InvalidOperationException("Enter a title.");
+                throw new InvalidOperationException(LocalizationManager.Get("EnterTitle"));
             var outputDirectory = OutputPath.SanitizeSegment(title);
             long? seriesId = null;
             if (kind == MediaKind.Series)
@@ -178,11 +179,10 @@ public partial class MainWindow : Window
     {
         var item = _editingItem!;
         if (_editingGroup is { Items.Count: > 1 } && kind != _editingGroup.Kind)
-            throw new InvalidOperationException(
-                "The category cannot be changed for an item with multiple seasons or sources.");
+            throw new InvalidOperationException(LocalizationManager.Get("CategoryChangeRestricted"));
         var selected = _episodes.Where(x => x.Selected).ToArray();
         if (selected.Length == 0)
-            throw new InvalidOperationException("Select at least one video file.");
+            throw new InvalidOperationException(LocalizationManager.Get("SelectVideo"));
         var seasons = selected.Select(x => x.Season).Distinct().ToArray();
         if (_editingGroup is not null &&
             !string.Equals(_editingGroup.Title, title, StringComparison.CurrentCulture))
@@ -224,8 +224,8 @@ public partial class MainWindow : Window
             _torrent!.InfoHash, season, outputDirectory);
         await _database.ReplaceStreamsAsync(item.Id, streams);
         await RefreshAndSelectAsync(kind, title, season);
-        SetStatus($"Changes saved: {plan.Create.Count} created, {plan.Update.Count} updated, " +
-                  $"{plan.Delete.Count} deleted.");
+        SetStatus(LocalizationManager.Format("ChangesSaved", plan.Create.Count,
+            plan.Update.Count, plan.Delete.Count));
     }
 
     private async Task MoveEpisodesBetweenSeasonsAsync(LibraryItem sourceItem, string title,
@@ -233,7 +233,7 @@ public partial class MainWindow : Window
     {
         var root = _settings.SeriesPath;
         if (string.IsNullOrWhiteSpace(root))
-            throw new InvalidOperationException("The TV shows folder is not configured.");
+            throw new InvalidOperationException(LocalizationManager.Get("SeriesFolderNotConfigured"));
 
         var previous = (await _database.GetStreamsAsync(sourceItem.Id)).ToList();
         var desiredByItem = new Dictionary<long, List<ManagedStream>>();
@@ -256,7 +256,7 @@ public partial class MainWindow : Window
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             if (targetStreams.Any(stream => movedPaths.Contains(stream.RelativePath)))
                 throw new InvalidOperationException(
-                    $"Season {seasonGroup.Key} already contains an episode with this number.");
+                    LocalizationManager.Format("SeasonEpisodeConflict", seasonGroup.Key));
             targetStreams.AddRange(moved);
             desiredByItem[targetId] = targetStreams;
         }
@@ -276,8 +276,8 @@ public partial class MainWindow : Window
         }
 
         await RefreshAndSelectAsync(MediaKind.Series, title, rows[0].Season);
-        SetStatus($"Episodes moved between seasons: {plan.Create.Count} created, " +
-                  $"{plan.Update.Count} updated, {plan.Delete.Count} deleted.");
+        SetStatus(LocalizationManager.Format("EpisodesMoved", plan.Create.Count,
+            plan.Update.Count, plan.Delete.Count));
     }
 
     private async Task RenameOtherGroupItemsAsync(LibraryRow group, long currentItemId,
@@ -315,7 +315,8 @@ public partial class MainWindow : Window
         if (kind == MediaKind.Movie)
         {
             var video = _torrent.Files.Where(x => x.IsVideo()).OrderByDescending(x => x.Length).FirstOrDefault()
-                        ?? throw new InvalidOperationException("The torrent contains no supported video files.");
+                        ?? throw new InvalidOperationException(
+                            LocalizationManager.Get("TorrentNoSupportedVideo"));
             return [new ManagedStream(0, itemId, video.Index, video.Path,
                 $"{directory}/{OutputPath.SanitizeSegment(title)}.strm",
                 StreamUrlBuilder.Build(_settings.ServerUrl, _torrent.InfoHash, video))];
@@ -329,7 +330,7 @@ public partial class MainWindow : Window
     private async Task SaveSettingsAsync(AppSettings settings, bool validate)
     {
         if (!Uri.TryCreate(settings.ServerUrl, UriKind.Absolute, out _))
-            throw new InvalidOperationException("Enter a valid absolute TorrServer address.");
+            throw new InvalidOperationException(LocalizationManager.Get("InvalidServerAddress"));
         if (validate)
         {
             if (!string.IsNullOrWhiteSpace(settings.MoviesPath))
@@ -393,8 +394,8 @@ public partial class MainWindow : Window
             _library.Add(row);
 
         LibraryCountText.Text = _library.Count == _allLibrary.Count
-            ? $"{_allLibrary.Count} sources"
-            : $"{_library.Count} of {_allLibrary.Count} sources";
+            ? LocalizationManager.Format("SourceCount", _allLibrary.Count)
+            : LocalizationManager.Format("FilteredSourceCount", _library.Count, _allLibrary.Count);
         UpdateFilterButtons();
     }
 
@@ -454,17 +455,16 @@ public partial class MainWindow : Window
             if (result.SyncNow)
             {
                 var (created, updated) = await SyncLibraryAsync(previousSettings);
-                SetStatus($"Settings saved. Library synchronized: " +
-                          $"{created} created, {updated} updated.");
+                SetStatus(LocalizationManager.Format("SettingsSavedAndSynced", created, updated));
             }
             else
             {
-                SetStatus("Settings saved. Library synchronization must be started manually.");
+                SetStatus(LocalizationManager.Get("SettingsSavedSyncLater"));
             }
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not save settings: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotSaveSettings", exception.Message), true);
         }
     }
 
@@ -479,7 +479,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not open the source for editing: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotOpenSource", exception.Message), true);
         }
     }
 
@@ -553,7 +553,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not relink the torrent: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotRelinkTorrent", exception.Message), true);
         }
     }
 
@@ -568,12 +568,12 @@ public partial class MainWindow : Window
             var items = (await _database.GetLibraryAsync())
                 .Where(item => ids.Contains(item.Id)).OrderBy(item => item.SeasonNumber).ToArray();
             if (items.Length == 0)
-                throw new InvalidOperationException("The selected link no longer exists.");
+                throw new InvalidOperationException(LocalizationManager.Get("SelectedLinkMissing"));
             await ReassignTorrentAsync(new LibraryRow(items), request);
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not relink the torrent: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotRelinkTorrent", exception.Message), true);
         }
     }
 
@@ -583,21 +583,19 @@ public partial class MainWindow : Window
         var sourceItems = group.Items.Where(item => requestedIds.Contains(item.Id) &&
             string.Equals(item.InfoHash, request.InfoHash, StringComparison.OrdinalIgnoreCase)).ToArray();
         if (sourceItems.Length == 0)
-            throw new InvalidOperationException("The selected torrent is no longer linked to a library item.");
+            throw new InvalidOperationException(LocalizationManager.Get("TorrentNoLongerLinked"));
         var previous = new List<ManagedStream>();
         foreach (var item in sourceItems)
             previous.AddRange(await _database.GetStreamsAsync(item.Id));
         if (request.TargetKind == MediaKind.Movie && previous.Count != 1)
-            throw new InvalidOperationException(
-                "Only a torrent with one selected video file can be linked to a movie.");
+            throw new InvalidOperationException(LocalizationManager.Get("MovieRequiresOneVideo"));
         if (request.TargetKind == MediaKind.Movie && sourceItems.Length != 1)
-            throw new InvalidOperationException(
-                "A source containing multiple seasons cannot be converted to a movie.");
+            throw new InvalidOperationException(LocalizationManager.Get("MultiSeasonCannotBeMovie"));
 
         var oldRoot = group.Kind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
         var newRoot = request.TargetKind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
         if (string.IsNullOrWhiteSpace(oldRoot) || string.IsNullOrWhiteSpace(newRoot))
-            throw new InvalidOperationException("Library folders are not configured.");
+            throw new InvalidOperationException(LocalizationManager.Get("LibraryFoldersNotConfigured"));
 
         var outputDirectory = OutputPath.SanitizeSegment(request.TargetTitle);
         long? seriesId = request.TargetKind == MediaKind.Series
@@ -628,8 +626,7 @@ public partial class MainWindow : Window
             foreach (var stream in await _database.GetStreamsAsync(item.Id))
                 occupied.Add(stream.RelativePath.Replace('\\', '/'));
         if (desired.Any(stream => occupied.Contains(stream.RelativePath.Replace('\\', '/'))))
-            throw new InvalidOperationException(
-                "The target item already contains episodes with these numbers.");
+            throw new InvalidOperationException(LocalizationManager.Get("TargetEpisodeConflict"));
 
         if (string.Equals(Path.GetFullPath(oldRoot), Path.GetFullPath(newRoot),
                 StringComparison.OrdinalIgnoreCase))
@@ -661,7 +658,7 @@ public partial class MainWindow : Window
 
         ResetEditor();
         await RefreshLibraryAsync();
-        SetStatus($"Torrent relinked to \"{request.TargetTitle}\".");
+        SetStatus(LocalizationManager.Format("TorrentRelinked", request.TargetTitle));
     }
 
     private async void ShowMediaFiles_Click(object? sender, RoutedEventArgs e)
@@ -676,7 +673,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not apply the assignment: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotApplyAssignment", exception.Message), true);
         }
     }
 
@@ -685,7 +682,7 @@ public partial class MainWindow : Window
     {
         var root = group.Kind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
         if (string.IsNullOrWhiteSpace(root))
-            throw new InvalidOperationException("The library folder is not configured.");
+            throw new InvalidOperationException(LocalizationManager.Get("LibraryFolderNotConfigured"));
         var previous = new List<ManagedStream>();
         foreach (var item in group.Items)
             previous.AddRange(await _database.GetStreamsAsync(item.Id));
@@ -733,8 +730,8 @@ public partial class MainWindow : Window
                 .Order().FirstOrDefault()
             : null;
         await RefreshAndSelectAsync(group.Kind, group.Title, preferredSeason);
-        SetStatus($"Assignment saved: {plan.Create.Count} created, " +
-                  $"{plan.Update.Count} updated, {plan.Delete.Count} deleted.");
+        SetStatus(LocalizationManager.Format("AssignmentSaved", plan.Create.Count,
+            plan.Update.Count, plan.Delete.Count));
     }
 
     private async void DeleteSelected_Click(object? sender, RoutedEventArgs e)
@@ -755,7 +752,7 @@ public partial class MainWindow : Window
     private async Task ConfirmAndDeleteAsync(LibraryRow row)
     {
         var detail = row.Kind == MediaKind.Series
-            ? $"{row.Title} ({row.Items.Count} seasons/sources)"
+            ? LocalizationManager.Format("TitleWithSourceCount", row.Title, row.Items.Count)
             : row.Title;
         if (!await new DeleteLibraryItemDialog(detail).ShowDialog<bool>(this))
             return;
@@ -764,7 +761,7 @@ public partial class MainWindow : Window
         {
             var root = row.Kind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
             if (string.IsNullOrWhiteSpace(root))
-                throw new InvalidOperationException("The library folder is not configured.");
+                throw new InvalidOperationException(LocalizationManager.Get("LibraryFolderNotConfigured"));
             foreach (var item in row.Items)
             {
                 var streams = await _database.GetStreamsAsync(item.Id);
@@ -775,11 +772,11 @@ public partial class MainWindow : Window
             if (_editingItem is not null && row.Items.Any(item => item.Id == _editingItem.Id))
                 ResetEditor();
             await RefreshLibraryAsync();
-            SetStatus($"Deleted from library: {detail}.");
+            SetStatus(LocalizationManager.Format("DeletedFromLibraryStatus", detail));
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not delete the source: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotDeleteSource", exception.Message), true);
         }
     }
 
@@ -809,10 +806,10 @@ public partial class MainWindow : Window
             var previous = await _database.GetStreamsAsync(_editingItem.Id);
             var desired = previous.Where(stream => stream.TorrentIndex != row.Index).ToArray();
             if (desired.Length == previous.Count)
-                throw new InvalidOperationException("The episode link no longer exists.");
+                throw new InvalidOperationException(LocalizationManager.Get("EpisodeLinkMissing"));
             var root = _settings.SeriesPath;
             if (string.IsNullOrWhiteSpace(root))
-                throw new InvalidOperationException("The TV shows folder is not configured.");
+                throw new InvalidOperationException(LocalizationManager.Get("SeriesFolderNotConfigured"));
             var plan = await _synchronizer.PlanAsync(root, desired, previous);
             await _synchronizer.ApplyAsync(root, plan);
             if (desired.Length == 0)
@@ -822,11 +819,11 @@ public partial class MainWindow : Window
 
             await RefreshAndSelectAsync(MediaKind.Series, title,
                 desired.Length > 0 ? preferredSeason : null);
-            SetStatus($"Episode deleted: season {row.Season:00}, episode {row.Episode:00}.");
+            SetStatus(LocalizationManager.Format("EpisodeDeletedStatus", row.Season, row.Episode));
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not delete the episode: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotDeleteEpisode", exception.Message), true);
         }
     }
 
@@ -837,7 +834,7 @@ public partial class MainWindow : Window
         {
             var stream = (await _database.GetStreamsAsync(_editingItem.Id))
                 .FirstOrDefault(candidate => candidate.TorrentIndex == row.Index)
-                ?? throw new InvalidOperationException("Media file link not found.");
+                ?? throw new InvalidOperationException(LocalizationManager.Get("MediaLinkMissing"));
             var display = row.IsSeries
                 ? $"{_editingItem.Title} S{row.Season:00}E{row.Episode:00}"
                 : _editingItem.Title;
@@ -845,7 +842,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not open the media player: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotOpenPlayer", exception.Message), true);
         }
     }
 
@@ -867,14 +864,15 @@ public partial class MainWindow : Window
                 }
             }
             if (entries.Count == 0)
-                throw new InvalidOperationException("The selected season contains no linked episodes.");
+                throw new InvalidOperationException(LocalizationManager.Get("SeasonHasNoEpisodes"));
             var ordered = entries.OrderBy(entry => entry.Episode)
                 .Select(entry => (entry.Display, entry.Content)).ToArray();
-            await OpenPlaylistAsync($"{_editingGroup.Title} - season {choice.Number}", ordered);
+            await OpenPlaylistAsync(LocalizationManager.Format(
+                "SeasonPlaylistName", _editingGroup.Title, choice.Number), ordered);
         }
         catch (Exception exception)
         {
-            SetStatus($"Could not open the season: {exception.Message}", true);
+            SetStatus(LocalizationManager.Format("CouldNotOpenSeason", exception.Message), true);
         }
     }
 
@@ -894,8 +892,8 @@ public partial class MainWindow : Window
         await File.WriteAllTextAsync(path, playlist.ToString(), new UTF8Encoding(false));
         Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
         SetStatus(entries.Count == 1
-            ? "Playlist opened in the default media player."
-            : $"Playlist opened with {entries.Count} episodes.");
+            ? LocalizationManager.Get("PlaylistOpened")
+            : LocalizationManager.Format("SeasonPlaylistOpened", entries.Count));
     }
 
     private async Task LoadLibraryItemAsync(LibraryItem item)
@@ -933,10 +931,9 @@ public partial class MainWindow : Window
                     row.Selected = row.Index == mainIndex;
             }
 
-            TorrentSummaryText.Text =
-                $"{_torrent.Name} | {_torrent.Files.Count} files | " +
-                $"{_torrent.Files.Count(x => x.IsVideo())} videos | {_torrent.InfoHash}";
-            EditorTitleText.Text = "Edit source";
+            TorrentSummaryText.Text = LocalizationManager.Format("TorrentSummary", _torrent.Name,
+                _torrent.Files.Count, _torrent.Files.Count(x => x.IsVideo()), _torrent.InfoHash);
+            EditorTitleText.Text = LocalizationManager.Get("EditSource");
             EditorFieldsPanel.IsVisible = true;
             EditorContentPanel.IsVisible = true;
             ImportButton.Content = LocalizationManager.Get("SaveChanges");
@@ -944,7 +941,7 @@ public partial class MainWindow : Window
             _editorSnapshot = CaptureEditorSnapshot();
             _editorDirty = false;
             UpdateImportButtonVisibility();
-            SetStatus("Source loaded. Edit the data and save your changes.");
+            SetStatus(LocalizationManager.Get("SourceLoaded"));
         }
         finally
         {
@@ -1010,7 +1007,7 @@ public partial class MainWindow : Window
         {
             await SaveSettingsAsync(_settings, validate: true);
             var (created, updated) = await SyncLibraryAsync(_settings);
-            SetStatus($"Library synchronized: {created} created, {updated} updated.");
+            SetStatus(LocalizationManager.Format("LibrarySynchronized", created, updated));
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }
@@ -1027,9 +1024,10 @@ public partial class MainWindow : Window
                 : previousSettings.MoviesPath;
             var root = item.Kind == MediaKind.Series ? _settings.SeriesPath : _settings.MoviesPath;
             if (string.IsNullOrWhiteSpace(root))
-                throw new InvalidOperationException(item.Kind == MediaKind.Series
-                    ? "The TV shows folder is not configured."
-                    : "The movies folder is not configured.");
+                throw new InvalidOperationException(LocalizationManager.Get(
+                    item.Kind == MediaKind.Series
+                        ? "SeriesFolderNotConfigured"
+                        : "MoviesFolderNotConfigured"));
             if (string.IsNullOrWhiteSpace(oldRoot))
                 oldRoot = root;
             var revised = streams.Select(x => x with
@@ -1076,7 +1074,7 @@ public partial class MainWindow : Window
         foreach (var group in missing)
             await _synchronizer.ApplyAsync(group.Root,
                 new SyncPlan(group.Streams, [], [], []));
-        SetStatus($"STRM files restored: {count}.");
+        SetStatus(LocalizationManager.Format("StrmFilesRestored", count));
     }
 
     private static string RebaseServer(string content, string serverUrl)
@@ -1098,7 +1096,7 @@ public partial class MainWindow : Window
 
     private sealed record SeasonChoice(int Number)
     {
-        public override string ToString() => $"Season {Number}";
+        public override string ToString() => LocalizationManager.Format("SeasonNumber", Number);
     }
 
     private sealed record LibraryRow(IReadOnlyList<LibraryItem> Items)

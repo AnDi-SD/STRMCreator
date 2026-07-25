@@ -2,6 +2,12 @@ namespace STRMshelf.Core;
 
 public enum MediaKind { Movie, Series }
 
+public static class SeasonNumbers
+{
+    // TMDB and compatible media libraries reserve season zero for specials.
+    public const int Specials = 0;
+}
+
 public sealed record TorrentFile(int Index, string Path, long Length)
 {
     public string Name => System.IO.Path.GetFileName(Path);

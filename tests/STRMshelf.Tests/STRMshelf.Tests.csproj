@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\STRMshelf.App\STRMshelf.App.csproj" />
     <ProjectReference Include="..\..\src\STRMshelf.Infrastructure\STRMshelf.Infrastructure.csproj" />
   </ItemGroup>
 

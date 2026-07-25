@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using STRMshelf.App.Localization;
 using STRMshelf.Core;
 using STRMshelf.Infrastructure;
 
@@ -28,10 +29,12 @@ public partial class SettingsWindow : Window
     }
 
     private async void BrowseMovies_Click(object? sender, RoutedEventArgs e) =>
-        MoviesPathBox.Text = await PickFolderAsync("Movies folder") ?? MoviesPathBox.Text;
+        MoviesPathBox.Text = await PickFolderAsync(LocalizationManager.Get("MoviesFolder"))
+                             ?? MoviesPathBox.Text;
 
     private async void BrowseSeries_Click(object? sender, RoutedEventArgs e) =>
-        SeriesPathBox.Text = await PickFolderAsync("TV shows folder") ?? SeriesPathBox.Text;
+        SeriesPathBox.Text = await PickFolderAsync(LocalizationManager.Get("SeriesFolder"))
+                             ?? SeriesPathBox.Text;
 
     private async Task<string?> PickFolderAsync(string title)
     {
@@ -44,7 +47,7 @@ public partial class SettingsWindow : Window
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Select an existing database",
+            Title = LocalizationManager.Get("SelectExistingDatabase"),
             AllowMultiple = false,
             FileTypeFilter = [new FilePickerFileType("SQLite database") { Patterns = ["*.db"] }]
         });
@@ -60,23 +63,23 @@ public partial class SettingsWindow : Window
             ServerUrlBox.Text = settings.ServerUrl;
             MoviesPathBox.Text = settings.MoviesPath;
             SeriesPathBox.Text = settings.SeriesPath;
-            SetStatus("Database opened and its settings loaded.");
+            SetStatus(LocalizationManager.Get("DatabaseOpened"));
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }
 
     private async void CreateDatabase_Click(object? sender, RoutedEventArgs e)
     {
-        var path = await PickDatabasePathAsync("Create a new database");
+        var path = await PickDatabasePathAsync(LocalizationManager.Get("CreateNewDatabase"));
         if (path is null) return;
         _databasePath = Path.GetFullPath(path);
         DatabasePathBox.Text = _databasePath;
-        SetStatus("The new database will be created when settings are saved.");
+        SetStatus(LocalizationManager.Get("DatabaseCreatedOnSave"));
     }
 
     private async void MoveDatabase_Click(object? sender, RoutedEventArgs e)
     {
-        var path = await PickDatabasePathAsync("Move the current database");
+        var path = await PickDatabasePathAsync(LocalizationManager.Get("MoveCurrentDatabase"));
         if (path is null) return;
         try
         {
@@ -84,19 +87,19 @@ public partial class SettingsWindow : Window
             await database.BackupAsync(path);
             _databasePath = Path.GetFullPath(path);
             DatabasePathBox.Text = _databasePath;
-            SetStatus("Database moved. The new file is now active.");
+            SetStatus(LocalizationManager.Get("DatabaseMoved"));
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }
 
     private async void BackupDatabase_Click(object? sender, RoutedEventArgs e)
     {
-        var path = await PickDatabasePathAsync("Back up the database");
+        var path = await PickDatabasePathAsync(LocalizationManager.Get("BackupDatabase"));
         if (path is null) return;
         try
         {
             await new LibraryDatabase(_databasePath).BackupAsync(path);
-            SetStatus($"Backup created: {path}");
+            SetStatus(LocalizationManager.Format("BackupCreated", path));
         }
         catch (Exception exception) { SetStatus(exception.Message, true); }
     }

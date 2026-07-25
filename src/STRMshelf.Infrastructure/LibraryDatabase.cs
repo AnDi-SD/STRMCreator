@@ -291,25 +291,59 @@ public sealed class LibraryDatabase(string databasePath)
         string source, string infoHash, int? season, string outputDirectory)
     {
         await using var connection = await OpenAsync();
-        var command = connection.CreateCommand();
-        command.CommandText =
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        var find = connection.CreateCommand();
+        find.Transaction = (SqliteTransaction)transaction;
+        find.CommandText =
             """
-            INSERT INTO library_items(kind,series_id,title,source,info_hash,season_number,output_directory,updated_at)
-            VALUES($kind,$series,$title,$source,$hash,$season,$output,$updated)
-            ON CONFLICT(kind,info_hash,season_number) DO UPDATE SET
-              series_id=excluded.series_id,title=excluded.title,source=excluded.source,
-              output_directory=excluded.output_directory,updated_at=excluded.updated_at
-            RETURNING id
+            SELECT id FROM library_items
+            WHERE kind=$kind AND info_hash=$hash AND season_number IS $season
             """;
-        command.Parameters.AddWithValue("$kind", (int)kind);
+        find.Parameters.AddWithValue("$kind", (int)kind);
+        find.Parameters.AddWithValue("$hash", infoHash);
+        find.Parameters.AddWithValue("$season", (object?)season ?? DBNull.Value);
+        var existing = await find.ExecuteScalarAsync();
+
+        var command = connection.CreateCommand();
+        command.Transaction = (SqliteTransaction)transaction;
+        if (existing is long id)
+        {
+            command.CommandText =
+                """
+                UPDATE library_items SET
+                  series_id=$series,title=$title,source=$source,
+                  output_directory=$output,updated_at=$updated
+                WHERE id=$id
+                """;
+            command.Parameters.AddWithValue("$id", id);
+        }
+        else
+        {
+            command.CommandText =
+                """
+                INSERT INTO library_items(
+                  kind,series_id,title,source,info_hash,season_number,output_directory,updated_at)
+                VALUES($kind,$series,$title,$source,$hash,$season,$output,$updated)
+                RETURNING id
+                """;
+            command.Parameters.AddWithValue("$kind", (int)kind);
+            command.Parameters.AddWithValue("$hash", infoHash);
+            command.Parameters.AddWithValue("$season", (object?)season ?? DBNull.Value);
+        }
+
         command.Parameters.AddWithValue("$series", (object?)seriesId ?? DBNull.Value);
         command.Parameters.AddWithValue("$title", title);
         command.Parameters.AddWithValue("$source", source);
-        command.Parameters.AddWithValue("$hash", infoHash);
-        command.Parameters.AddWithValue("$season", (object?)season ?? DBNull.Value);
         command.Parameters.AddWithValue("$output", outputDirectory);
         command.Parameters.AddWithValue("$updated", DateTimeOffset.UtcNow.ToString("O"));
-        return (long)(await command.ExecuteScalarAsync())!;
+        var result = existing is long existingId
+            ? (await command.ExecuteNonQueryAsync() == 1 ? existingId : null)
+            : await command.ExecuteScalarAsync();
+        await transaction.CommitAsync();
+        return result is long itemId
+            ? itemId
+            : throw new InvalidOperationException("Could not save the library item.");
     }
 
     public async Task UpdateLibraryItemAsync(long id, MediaKind kind, long? seriesId, string title,

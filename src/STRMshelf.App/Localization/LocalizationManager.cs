@@ -16,15 +16,17 @@ public static class LocalizationManager
     {
         Language = string.Equals(language, "ru", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
         var culture = CultureInfo.GetCultureInfo(Language);
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
     }
 
     public static string Get(string key) =>
-        Resources.GetString(key, CultureInfo.CurrentUICulture) ?? $"[{key}]";
+        Resources.GetString(key, CultureInfo.GetCultureInfo(Language)) ?? $"[{key}]";
 
     public static string Format(string key, params object?[] values) =>
-        string.Format(CultureInfo.CurrentUICulture, Get(key), values);
+        string.Format(CultureInfo.GetCultureInfo(Language), Get(key), values);
 }
 
 public sealed class LocExtension(string key) : MarkupExtension
