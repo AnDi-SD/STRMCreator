@@ -31,6 +31,34 @@ public sealed class LibraryDatabaseTests
     }
 
     [Fact]
+    public async Task UpdateLibraryItem_ChangesExistingRecordWithoutCreatingDuplicate()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"strmcreator-tests-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var database = new LibraryDatabase(Path.Combine(directory, "library.db"));
+            await database.InitializeAsync();
+            var id = await database.UpsertLibraryItemAsync(MediaKind.Series, null, "Old title",
+                "source.torrent", "HASH", 1, "Old title");
+
+            await database.UpdateLibraryItemAsync(id, MediaKind.Movie, null, "New title",
+                "source.torrent", "HASH", null, "New title");
+
+            var item = Assert.Single(await database.GetLibraryAsync());
+            Assert.Equal(id, item.Id);
+            Assert.Equal(MediaKind.Movie, item.Kind);
+            Assert.Equal("New title", item.Title);
+            Assert.Null(item.SeasonNumber);
+            Assert.Equal("New title", item.OutputDirectory);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task MagnetService_RejectsInvalidLinkBeforeNetworkAccess()
     {
         var service = new MagnetMetadataService();

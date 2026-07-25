@@ -231,6 +231,31 @@ public sealed class LibraryDatabase(string databasePath)
         return (long)(await command.ExecuteScalarAsync())!;
     }
 
+    public async Task UpdateLibraryItemAsync(long id, MediaKind kind, long? seriesId, string title,
+        string source, string infoHash, int? season, string outputDirectory)
+    {
+        await using var connection = await OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText =
+            """
+            UPDATE library_items SET
+              kind=$kind,series_id=$series,title=$title,source=$source,info_hash=$hash,
+              season_number=$season,output_directory=$output,updated_at=$updated
+            WHERE id=$id
+            """;
+        command.Parameters.AddWithValue("$id", id);
+        command.Parameters.AddWithValue("$kind", (int)kind);
+        command.Parameters.AddWithValue("$series", (object?)seriesId ?? DBNull.Value);
+        command.Parameters.AddWithValue("$title", title);
+        command.Parameters.AddWithValue("$source", source);
+        command.Parameters.AddWithValue("$hash", infoHash);
+        command.Parameters.AddWithValue("$season", (object?)season ?? DBNull.Value);
+        command.Parameters.AddWithValue("$output", outputDirectory);
+        command.Parameters.AddWithValue("$updated", DateTimeOffset.UtcNow.ToString("O"));
+        if (await command.ExecuteNonQueryAsync() != 1)
+            throw new InvalidOperationException("Library item no longer exists.");
+    }
+
     public async Task ReplaceStreamsAsync(long libraryItemId, IReadOnlyList<ManagedStream> streams)
     {
         await using var connection = await OpenAsync();

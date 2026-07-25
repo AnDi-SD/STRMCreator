@@ -19,6 +19,27 @@
       <Setter Property="MinHeight" Value="34"/>
       <Setter Property="Padding" Value="14,6"/>
     </Style>
+    <Style Selector="Button.topbar">
+      <Setter Property="Background" Value="#F3F4F6"/>
+      <Setter Property="Foreground" Value="#181B20"/>
+      <Setter Property="BorderBrush" Value="#FFFFFF"/>
+    </Style>
+    <Style Selector="Button.topbar:pointerover">
+      <Setter Property="Background" Value="#E2E5E9"/>
+      <Setter Property="Foreground" Value="#181B20"/>
+      <Setter Property="BorderBrush" Value="#FFFFFF"/>
+    </Style>
+    <Style Selector="Button.topbar /template/ ContentPresenter">
+      <Setter Property="Background" Value="#F3F4F6"/>
+      <Setter Property="Foreground" Value="#181B20"/>
+    </Style>
+    <Style Selector="Button.topbar:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#E2E5E9"/>
+      <Setter Property="Foreground" Value="#181B20"/>
+    </Style>
+    <Style Selector="ComboBox#TitleBox /template/ TextBox#PART_EditableTextBox">
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
     <Style Selector="TextBox, ComboBox">
       <Setter Property="MinHeight" Value="34"/>
     </Style>
@@ -30,63 +51,48 @@
     </Style>
   </Window.Styles>
 
-  <Grid RowDefinitions="Auto,Auto,*">
+  <Grid RowDefinitions="Auto,*">
     <Border Background="#20242A" Padding="20,14">
       <Grid ColumnDefinitions="*,Auto">
         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
           <TextBlock Text="STRM Creator" Foreground="White" FontSize="20" FontWeight="SemiBold"/>
           <TextBlock Text="Библиотека TorrServer для Infuse" Foreground="#B9BEC6" VerticalAlignment="Center"/>
         </StackPanel>
-        <Button x:Name="SettingsToggle" Grid.Column="1" Content="Настройки"
-                Background="#F3F4F6" Foreground="#181B20"
-                BorderBrush="#FFFFFF" BorderThickness="1"
-                Click="SettingsToggle_Click"/>
-      </Grid>
-    </Border>
-
-    <Border x:Name="SettingsPanel" Grid.Row="1" Background="#E9EBEF" Padding="20,14"
-            BorderBrush="#D1D4D9" BorderThickness="0,0,0,1" IsVisible="False">
-      <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="1.2*,1.5*,Auto,1.5*,Auto,Auto"
-            ColumnSpacing="8" RowSpacing="12">
-        <StackPanel>
-          <TextBlock Classes="label" Text="TorrServer"/>
-          <TextBox x:Name="ServerUrlBox" PlaceholderText="http://192.168.1.1:8090"/>
-        </StackPanel>
-        <StackPanel Grid.Column="1">
-          <TextBlock Classes="label" Text="Каталог фильмов"/>
-          <TextBox x:Name="MoviesPathBox" PlaceholderText="Локальный или сетевой путь"/>
-        </StackPanel>
-        <Button Grid.Column="2" Content="Обзор" VerticalAlignment="Bottom" Click="BrowseMovies_Click"/>
-        <StackPanel Grid.Column="3">
-          <TextBlock Classes="label" Text="Каталог сериалов"/>
-          <TextBox x:Name="SeriesPathBox" PlaceholderText="Локальный или сетевой путь"/>
-        </StackPanel>
-        <Button Grid.Column="4" Content="Обзор" VerticalAlignment="Bottom" Click="BrowseSeries_Click"/>
-        <Button Grid.Column="5" Content="Сохранить и проверить" VerticalAlignment="Bottom"
-                Click="SaveSettings_Click"/>
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="4">
-          <TextBlock Classes="label" Text="Файл базы данных"/>
-          <TextBox x:Name="DatabasePathBox" IsReadOnly="True"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal"
-                    Spacing="8" VerticalAlignment="Bottom">
-          <Button Content="Открыть" Click="SelectDatabase_Click"/>
-          <Button Content="Новая" Click="CreateDatabase_Click"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="5" Orientation="Horizontal"
-                    Spacing="8" VerticalAlignment="Bottom">
-          <Button Content="Перенести" Click="MoveDatabase_Click"/>
-          <Button Content="Backup" Click="BackupDatabase_Click"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+          <Button Classes="topbar" Content="Добавить magnet" Click="OpenMagnet_Click"/>
+          <Button Classes="topbar" Content="Открыть torrent" Click="OpenTorrent_Click"/>
+          <Button x:Name="SettingsToggle" Classes="topbar" Content="Настройки"
+                  BorderThickness="1"
+                  Click="SettingsToggle_Click"/>
         </StackPanel>
       </Grid>
     </Border>
 
-    <Grid Grid.Row="2" ColumnDefinitions="330,*" Margin="16" ColumnSpacing="14">
+    <Grid Grid.Row="1" ColumnDefinitions="330,*" Margin="16" ColumnSpacing="14">
       <Border Classes="panel">
         <Grid RowDefinitions="Auto,*,Auto">
-          <StackPanel Margin="16,14,16,10">
+          <StackPanel Margin="16,14,16,10" Spacing="8">
             <TextBlock Classes="h1" Text="Медиатека"/>
             <TextBlock x:Name="LibraryCountText" Classes="label" Text="0 источников"/>
+            <TextBox x:Name="LibrarySearchBox" PlaceholderText="Поиск"
+                     TextChanged="LibrarySearch_Changed"/>
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+              <Button x:Name="ShowAllButton" Padding="8,4"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center" Click="ShowAll_Click">
+                <TextBlock Text="Все" TextAlignment="Center" HorizontalAlignment="Center"/>
+              </Button>
+              <Button x:Name="ShowMoviesButton" Grid.Column="1" Padding="8,4"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center" Click="ShowMovies_Click">
+                <TextBlock Text="Фильмы" TextAlignment="Center" HorizontalAlignment="Center"/>
+              </Button>
+              <Button x:Name="ShowSeriesButton" Grid.Column="2" Padding="8,4"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center" Click="ShowSeries_Click">
+                <TextBlock Text="Сериалы" TextAlignment="Center" HorizontalAlignment="Center"/>
+              </Button>
+            </Grid>
           </StackPanel>
           <ListBox x:Name="LibraryList" Grid.Row="1" Margin="8,0"
                    SelectionChanged="LibraryList_SelectionChanged">
@@ -111,15 +117,11 @@
 
       <Border Grid.Column="1" Classes="panel">
         <Grid RowDefinitions="Auto,Auto,*">
-          <Grid Margin="20,16" ColumnDefinitions="*,Auto">
+          <Grid Margin="20,16">
             <StackPanel>
-              <TextBlock Classes="h1" Text="Добавление источника"/>
+              <TextBlock x:Name="EditorTitleText" Classes="h1" Text="Добавление источника"/>
               <TextBlock x:Name="TorrentSummaryText" Classes="label"
                          Text="Выберите torrent-файл, чтобы увидеть его содержимое"/>
-            </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-              <Button Content="Добавить magnet" Click="OpenMagnet_Click"/>
-              <Button Content="Открыть torrent" Click="OpenTorrent_Click"/>
             </StackPanel>
           </Grid>
 
@@ -130,6 +132,7 @@
               <StackPanel Grid.ColumnSpan="4">
                 <TextBlock Classes="label" Text="Название"/>
                 <ComboBox x:Name="TitleBox" IsEditable="True" IsTextSearchEnabled="False"
+                          VerticalContentAlignment="Center"
                           SelectionChanged="TitleBox_SelectionChanged"/>
               </StackPanel>
               <StackPanel Grid.Row="1">
@@ -140,12 +143,12 @@
                   <RadioButton x:Name="MovieKindRadio" Content="Фильм" Click="MediaKind_Changed"/>
                 </StackPanel>
               </StackPanel>
-              <StackPanel Grid.Row="1" Grid.Column="2">
+              <StackPanel x:Name="SeasonControls" Grid.Row="1" Grid.Column="2">
                 <TextBlock Classes="label" Text="Сезон"/>
                 <local:NumberStepper x:Name="SeasonBox" Minimum="0" Maximum="999" Value="1"
                                      ValueChanged="Numbering_Changed"/>
               </StackPanel>
-              <StackPanel Grid.Row="1" Grid.Column="3">
+              <StackPanel x:Name="EpisodeControls" Grid.Row="1" Grid.Column="3">
                 <TextBlock Classes="label" Text="Первая серия"/>
                 <local:NumberStepper x:Name="FirstEpisodeBox" Minimum="0" Maximum="9999" Value="1"
                                      ValueChanged="Numbering_Changed"/>
@@ -158,8 +161,8 @@
               <TextBlock Text="Включить" Classes="label"/>
               <TextBlock Grid.Column="1" Text="Исходный файл" Classes="label"/>
               <TextBlock Grid.Column="2" Text="Индекс" Classes="label"/>
-              <TextBlock Grid.Column="3" Text="Сезон" Classes="label"/>
-              <TextBlock Grid.Column="4" Text="Серия" Classes="label"/>
+              <TextBlock x:Name="SeasonColumnHeader" Grid.Column="3" Text="Сезон" Classes="label"/>
+              <TextBlock x:Name="EpisodeColumnHeader" Grid.Column="4" Text="Серия" Classes="label"/>
               <TextBlock Grid.Column="5" Text="Итоговый STRM" Classes="label"/>
             </Grid>
             <ListBox x:Name="EpisodeList" Grid.Row="1" Margin="12,0">
@@ -171,9 +174,11 @@
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="2" Text="{Binding Index}" VerticalAlignment="Center"/>
                     <local:NumberStepper Grid.Column="3" Value="{Binding Season, Mode=TwoWay}"
-                                         Minimum="0" Maximum="999" MinHeight="30"/>
+                                         Minimum="0" Maximum="999" MinHeight="30"
+                                         IsVisible="{Binding IsSeries}"/>
                     <local:NumberStepper Grid.Column="4" Value="{Binding Episode, Mode=TwoWay}"
-                                         Minimum="0" Maximum="9999" MinHeight="30"/>
+                                         Minimum="0" Maximum="9999" MinHeight="30"
+                                         IsVisible="{Binding IsSeries}"/>
                     <TextBlock Grid.Column="5" Text="{Binding OutputName}" TextTrimming="CharacterEllipsis"
                                VerticalAlignment="Center"/>
                   </Grid>
@@ -183,7 +188,8 @@
             <Border Grid.Row="2" BorderBrush="#E2E4E8" BorderThickness="0,1,0,0" Padding="20,12">
               <Grid ColumnDefinitions="*,Auto">
                 <TextBlock x:Name="StatusText" Text="Готово" Classes="label" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="Добавить и синхронизировать"
+                <Button x:Name="ImportButton" Grid.Column="1" Content="Добавить и синхронизировать"
+                        IsVisible="False"
                         Click="ImportAndSync_Click"/>
               </Grid>
             </Border>

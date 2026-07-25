@@ -1,0 +1,72 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="STRMCreator.App.SettingsWindow"
+        Title="Настройки" Width="760" Height="610"
+        MinWidth="680" MinHeight="560"
+        WindowStartupLocation="CenterOwner"
+        Background="#F4F5F7">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Background="#20242A" Padding="22,16">
+      <StackPanel>
+        <TextBlock Text="Настройки" Foreground="White" FontSize="22" FontWeight="SemiBold"/>
+        <TextBlock Text="Подключение, каталоги медиатеки и хранение данных"
+                   Foreground="#B9BEC6"/>
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="22,18" Spacing="18">
+        <StackPanel Spacing="8">
+          <TextBlock Text="TorrServer" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="Адрес сервера, который будет записан во все STRM-файлы."
+                     Foreground="#5A5F67" FontSize="12"/>
+          <TextBox x:Name="ServerUrlBox" MinHeight="38"
+                   PlaceholderText="http://192.168.1.1:8090"/>
+        </StackPanel>
+
+        <Separator/>
+
+        <StackPanel Spacing="10">
+          <TextBlock Text="Каталоги медиатеки" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="Поддерживаются локальные каталоги и сетевые UNC-пути."
+                     Foreground="#5A5F67" FontSize="12"/>
+          <Grid ColumnDefinitions="120,*,Auto" ColumnSpacing="8">
+            <TextBlock Text="Фильмы" VerticalAlignment="Center"/>
+            <TextBox x:Name="MoviesPathBox" Grid.Column="1" MinHeight="38"/>
+            <Button Grid.Column="2" Content="Обзор" Click="BrowseMovies_Click"/>
+          </Grid>
+          <Grid ColumnDefinitions="120,*,Auto" ColumnSpacing="8">
+            <TextBlock Text="Сериалы" VerticalAlignment="Center"/>
+            <TextBox x:Name="SeriesPathBox" Grid.Column="1" MinHeight="38"/>
+            <Button Grid.Column="2" Content="Обзор" Click="BrowseSeries_Click"/>
+          </Grid>
+        </StackPanel>
+
+        <Separator/>
+
+        <StackPanel Spacing="10">
+          <TextBlock Text="База данных" FontSize="17" FontWeight="SemiBold"/>
+          <TextBlock Text="В базе хранится медиатека, источники и информация о созданных STRM."
+                     Foreground="#5A5F67" FontSize="12"/>
+          <TextBox x:Name="DatabasePathBox" IsReadOnly="True" MinHeight="38"/>
+          <WrapPanel Orientation="Horizontal">
+            <Button Content="Открыть существующую" Margin="0,0,8,8" Click="OpenDatabase_Click"/>
+            <Button Content="Создать новую" Margin="0,0,8,8" Click="CreateDatabase_Click"/>
+            <Button Content="Перенести текущую" Margin="0,0,8,8" Click="MoveDatabase_Click"/>
+            <Button Content="Резервная копия" Margin="0,0,0,8" Click="BackupDatabase_Click"/>
+          </WrapPanel>
+        </StackPanel>
+
+        <TextBlock x:Name="StatusText" Foreground="#5A5F67" TextWrapping="Wrap"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Background="White" BorderBrush="#D9DCE1"
+            BorderThickness="0,1,0,0" Padding="22,14">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <Button Grid.Column="1" Content="Отмена" Click="Cancel_Click"/>
+        <Button Grid.Column="2" Content="Сохранить" Click="Save_Click"/>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
